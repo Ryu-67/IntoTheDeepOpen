@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
-import org.firstinspires.ftc.teamcode.subsystems.MPPivot;
 import org.firstinspires.ftc.teamcode.subsystems.MainArm;
 
 @TeleOp(name = "Comp Tele")
@@ -30,6 +29,11 @@ public class TeleV1 extends OpMode {
         deposit.process(gamepad2.dpad_up, gamepad2.dpad_down);
 
         arm.setLmi(gamepad2.right_stick_x);
+        if (leftTriggerBoolean() && !rightTriggerBoolean()) {
+            arm.setLtg(0);
+        } else if (rightTriggerBoolean() && !leftTriggerBoolean()) {
+            arm.setLtg(3000);
+        }
 
         increment(gamepad2.b, gamepad2.x);
 
@@ -66,5 +70,13 @@ public class TeleV1 extends OpMode {
         } else {
             arm.setMainState(MainArm.State.intake);
         }
+    }
+
+    public boolean leftTriggerBoolean() {
+        return gamepad2.left_trigger > 0;
+    }
+
+    public boolean rightTriggerBoolean() {
+        return gamepad2.right_trigger > 0;
     }
 }

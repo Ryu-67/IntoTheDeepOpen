@@ -79,14 +79,13 @@ public class Lift {
         ticks = readTicks(Math.abs(lLift.getCurrentPosition()));
         if (manual) {
             double dt = 45*mInput;
+            target += dt;
+        }
 
-            if (target + dt <= limit && target + dt >= 0) {
-                target += dt;
-            } else if (target + dt >= limit && target + dt >= 0) {
-                target = limit;
-            } else if (target + dt <= limit && target + dt <= 0) {
-                target = 0;
-            }
+        if (target >= limit) {
+            target = limit;
+        } else if (target <= 0) {
+            target = 0;
         }
 
         controller.setSetPoint(target);

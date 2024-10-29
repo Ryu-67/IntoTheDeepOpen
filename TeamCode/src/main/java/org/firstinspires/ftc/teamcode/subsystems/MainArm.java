@@ -20,7 +20,6 @@ public class MainArm {
     }
 
     public static double hLimit = 0, vlimit = 0;
-    private double sLimit = (hLimit + vlimit)/2;
 
     public static double vertAngle = 117, backUpAngle = 130, specimen = 30;
 
