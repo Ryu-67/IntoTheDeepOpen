@@ -91,23 +91,8 @@ public class Arm {
         lArm.setPosition(val);
     }
 
-    public class SetDeposit implements Action {
-
-        private double wristp, pitchp, armp, clawp;
-
-        public SetDeposit(double wristp, double pitchp, double armp, double clawp) {
-            this.wristp = wristp; this.armp = armp; this.pitchp = pitchp; this.clawp = clawp;
-        }
-
-        @Override
-        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            wrist.setPosition(wristp); pitch.setPosition(pitchp); lArm.setPosition(armp); claw.directSet(clawp);
-            return false;
-        }
-    }
-
-    public SetDeposit setDeposit(double wristp, double pitchp, double armp, double clawp) {
-        return new SetDeposit(wristp, pitchp, armp, clawp);
+    public void setDeposit(double wristp, double pitchp, double armp, double clawp) {
+        wrist.setPosition(wristp); pitch.setPosition(pitchp); lArm.setPosition(armp); claw.directSet(clawp);
     }
 
 }
