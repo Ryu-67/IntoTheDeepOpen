@@ -12,4 +12,6 @@ public class Globals {
 
    public static double n3Extension = 1600;
 
+   public static double basketExtension = 2592;
+
 }

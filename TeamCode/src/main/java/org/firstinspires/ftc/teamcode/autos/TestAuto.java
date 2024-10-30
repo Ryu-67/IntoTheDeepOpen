@@ -38,9 +38,9 @@ public class TestAuto extends LinearOpMode {
                 .splineToLinearHeading(new Pose2d(-60, -60, Math.toRadians(45)), Math.PI);
 
         n1 = drive.actionBuilder(new Pose2d(-60, -60, Math.toRadians(45)))
-                .splineToLinearHeading(new Pose2d(-59, -50, Math.toRadians(63)), Math.PI/2);
+                .splineToLinearHeading(new Pose2d(-60.5, -52, Math.toRadians(68.5)), Math.PI/2);
 
-        n1Deposit = drive.actionBuilder(new Pose2d(-59, -50, Math.toRadians(63)))
+        n1Deposit = drive.actionBuilder(new Pose2d(-60.5, -52, Math.toRadians(68.5)))
                 .splineToLinearHeading(new Pose2d(-60, -60, Math.toRadians(45)), Math.PI);
 
         n2 = drive.actionBuilder(new Pose2d(-60, -60, Math.toRadians(45)))
@@ -67,13 +67,32 @@ public class TestAuto extends LinearOpMode {
         n3dt = n3Deposit.build();
 
         fsm = new StateMachineBuilder()
+                .state("id")
+                    .onEnter(()->{
+
+                    })
+                .transition(()-> !id.run(new TelemetryPacket()))
                 .state("n1")
                         .onEnter(()->{
                             arm.setMainState(MainArm.State.intake);
-                            arm.setLtg(Globals.n1Extension);
-                            deposit.setDeposit(Arm.hori, Arm.aPitchBack, Arm.aBack, Claw.open);
+                            arm.setLtg(Globals.n1Extension-40);
+                            deposit.setDeposit(Arm.hori, Arm.aPitchBack, Arm.degToRange(Arm.aBack), Claw.open);
                         })
-                                .transition(()-> arm.stateComplete() && !id.run(new TelemetryPacket()))
+                .transition(()-> arm.stateComplete() && !n1t.run(new TelemetryPacket()), ()->deposit.setDeposit(Arm.hori, Arm.aPitchBack, Arm.degToRange(Arm.aBack), Claw.closed))
+                .waitState(0.4)
+                .state("inter")
+                    .onEnter(()->{
+                        arm.setMainState(MainArm.State.basket);
+                        arm.setLtg(400);
+                    })
+                .transition(()-> arm.stateComplete())
+                .state("n1dt")
+                    .onEnter(()->{
+                       arm.setLtg(Globals.basketExtension);
+                    })
+                .transition(()-> arm.stateComplete() && !n1dt.run(new TelemetryPacket()), ()->deposit.setDeposit(Arm.vert, Arm.aPitchUp, Arm.degToRange(Arm.aUp), Claw.closed))
+                .state("drop")
+                .onEnter(()->deposit.setDeposit(Arm.vert, Arm.aPitchUp, Arm.degToRange(Arm.aUp), Claw.open))
                 .build();
 
         waitForStart();
@@ -83,6 +102,8 @@ public class TestAuto extends LinearOpMode {
         while (opModeIsActive() && fsm.isRunning()) {
             fsm.update();
             arm.update();
+            telemetry.addData("Current State", fsm.getStateString());
+            telemetry.update();
         }
 
 

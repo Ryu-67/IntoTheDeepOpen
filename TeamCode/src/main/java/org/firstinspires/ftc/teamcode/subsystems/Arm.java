@@ -83,7 +83,7 @@ public class Arm {
         }
     }
 
-    private double degToRange(double deg) {
+    public static double degToRange(double deg) {
         return Range.clip(deg, 0, 300)/300;
     }
 
