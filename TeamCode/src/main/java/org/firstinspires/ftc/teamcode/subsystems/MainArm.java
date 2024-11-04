@@ -19,9 +19,9 @@ public class MainArm {
         inter
     }
 
-    public static double hLimit = 0, vlimit = 0;
+    private boolean override = false;
 
-    public static double vertAngle = 117, backUpAngle = 130, specimen = 30;
+    public static double vertAngle = 119, backUpAngle = 130, specimen = 50;
 
     private boolean flag = false;
 
@@ -73,9 +73,10 @@ public class MainArm {
 
         lState = mainState;
 
-        if (flag) {
+        if (flag && !override) {
             lift.setManualInput(lmi);
         } else {
+            lift.setManualInput(0);
             lift.setTarget(ltg);
         }
 
@@ -83,15 +84,23 @@ public class MainArm {
         lift.update();
     }
 
-    public State getlState() {
-        return lState;
-    }
-
-    public double getAngle() {
-        return pivot.angle;
-    }
-
     public boolean stateComplete() {
         return lift.check() && pivot.check();
+    }
+
+    public boolean lCheck() {
+        return lift.check();
+    }
+
+    public void setLiftOverride(boolean enable) {
+        lift.enableOverride(enable);
+    }
+
+    public void setOverride(boolean override) {
+        this.override = override;
+    }
+
+    public boolean readLiftReset() {
+        return lift.readSensor();
     }
 }

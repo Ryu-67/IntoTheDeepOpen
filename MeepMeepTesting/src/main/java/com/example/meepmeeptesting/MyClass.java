@@ -18,7 +18,7 @@ public class MyClass {
         myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-39, -64.5, Math.toRadians(90)))
                 .splineToLinearHeading(new Pose2d(-59, -59, Math.toRadians(45)), Math.PI)
                 .waitSeconds(1)
-                .splineToLinearHeading(new Pose2d(-59, -50, Math.toRadians(63)), Math.PI/2)
+                .splineToLinearHeading(new Pose2d(-49.5, -40.8, Math.toRadians(90)), Math.PI/2)
                         .waitSeconds(1)
                 .splineToLinearHeading(new Pose2d(-59, -59, Math.toRadians(45)), Math.PI)
                 .waitSeconds(1)

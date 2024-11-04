@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 
 @TeleOp
-@Disabled
 public class LiftEncoderTest extends OpMode {
 
     private DcMotor lLift;

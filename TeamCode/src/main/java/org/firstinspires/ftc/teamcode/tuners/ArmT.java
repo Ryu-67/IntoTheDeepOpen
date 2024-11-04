@@ -4,17 +4,17 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.subsystems.Arm;
+import org.firstinspires.ftc.teamcode.subsystems.Deposit;
 
 @Disabled
 @TeleOp
 public class ArmT extends OpMode {
 
-    Arm arm;
+    Deposit arm;
 
     @Override
     public void init() {
-        arm = new Arm(hardwareMap);
+        arm = new Deposit(hardwareMap);
     }
 
     @Override

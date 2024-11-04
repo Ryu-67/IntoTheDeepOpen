@@ -1,16 +1,12 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import androidx.annotation.NonNull;
-
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 @Config
-public class Arm {
+public class Deposit {
 
     private Servo lArm, pitch, wrist;
     private Claw claw;
@@ -26,11 +22,11 @@ public class Arm {
     private boolean ispressed = false, ispressed2 = false;
 
     public static double aDown = 50, aUp = 168, aBack = 188;
-    public static double aPitchUp=0.5, aPitchDown = 0.2, aPitchBack = 1;
+    public static double aPitchUp=0.32, aPitchDown = 0.2, aPitchBack = 0.8;
 
-    private double armDown = degToRange(aDown), armUp = degToRange(aUp), armBack = degToRange(aBack);
+    public static double armDown = degToRange(aDown), armUp = 0.6, armBack = 0.68;
 
-    public Arm(HardwareMap hardwareMap) {
+    public Deposit(HardwareMap hardwareMap) {
         lArm = hardwareMap.servo.get("arm");
         pitch = hardwareMap.servo.get("pitch");
         pitch.setDirection(Servo.Direction.REVERSE);
@@ -42,7 +38,7 @@ public class Arm {
         wrist.setPosition(hori);
     }
 
-    int incr = 2; boolean lock = false; int lincr = 0;
+    int incr = 1; boolean lock = false; int lincr = 0;
 
 
     public void process(boolean down, boolean up) {
@@ -71,13 +67,13 @@ public class Arm {
         if (incr != lincr) {
             if (incr == 1) {
                 setArm(armUp);
-                pitch.setPosition(0.5);
+                pitch.setPosition(aPitchUp);
             } else if (incr == 0) {
                 setArm(armDown);
-                pitch.setPosition(0.2);
+                pitch.setPosition(aPitchDown);
             } else {
                 setArm(armBack);
-                pitch.setPosition(1);
+                pitch.setPosition(aPitchBack);
             }
             lincr = incr;
         }

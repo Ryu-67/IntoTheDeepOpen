@@ -23,6 +23,14 @@ public class Lift {
 
     private boolean manual = false;
 
+    public enum Mode {
+        target,
+        manual,
+        hang
+    }
+
+    Mode runMode = Mode.target, lastMode = runMode;
+
     public Lift(HardwareMap hardwareMap, boolean manual) {
         rLift = hardwareMap.dcMotor.get("rLift");
         lLift = hardwareMap.dcMotor.get("lLift");
@@ -40,13 +48,19 @@ public class Lift {
 
         controller.setTolerance(10);
 
-        this.manual = manual;
+        if (manual) {
+            runMode = Mode.manual;
+        } else {
+            runMode = Mode.target;
+        }
     }
 
     public double readTicks(double ticks) {
         if (reset.isPressed()) {
             lLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             lLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            rLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             return 0;
         } else {
             return ticks;
@@ -63,7 +77,7 @@ public class Lift {
         mInput = input;
     }
 
-    private double l1 = 2592, l2 = 1600, limit = l2;
+    private double l1 = 2600, l2 = 1600, limit = l2;
 
     public void setLimit(boolean vertical) {
         if (vertical) {
@@ -73,18 +87,32 @@ public class Lift {
         }
     }
 
+    public static double hangPower = .45, pullPower = 0.6;
 
+    public void setRunMode(Mode runMode) {
+        this.runMode = runMode;
+    }
 
     public void update() {
         ticks = readTicks(Math.abs(lLift.getCurrentPosition()));
-        if (manual) {
+
+        if (runMode == Mode.manual) {
             double dt = 45*mInput;
-            target += dt;
+            if (target + dt > limit) {
+                target = limit;
+            } else if (target + dt < 0) {
+                target = 0;
+            } else {
+                target += dt;
+            }
+        } else if (runMode == Mode.hang) {
+            apply(hangPower);
+            return;
         }
 
         if (target >= limit) {
             target = limit;
-        } else if (target <= 0) {
+        } else if (target < 0) {
             target = 0;
         }
 
@@ -92,13 +120,13 @@ public class Lift {
 
         power = controller.calculate(ticks);
 
-        if (Utils.valInThresh(power, lastPower, 0.001)) {
-            if (target == 0 && reset.isPressed()) {
-                power = 0;
-            }
-            apply(power);
-            lastPower = power;
+        if (target == 0 && reset.isPressed()) {
+            apply(0);
+        } else {
+            apply(power * override);
         }
+
+        lastMode = runMode;
     }
 
     public double getTicks() {
@@ -112,6 +140,20 @@ public class Lift {
 
     public boolean check() {
         return controller.atSetPoint();
+    }
+
+    double override = 1;
+
+    public void enableOverride(boolean enable) {
+        if (enable) {
+            override = 0;
+        } else {
+            override = 1;
+        }
+    }
+
+    public boolean readSensor() {
+        return reset.isPressed();
     }
 
 }
