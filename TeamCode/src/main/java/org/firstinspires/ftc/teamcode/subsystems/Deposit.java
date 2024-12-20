@@ -11,21 +11,13 @@ public class Deposit {
     private Servo lArm, pitch, wrist;
     private Claw claw;
 
-    public enum State {
-        back, up, down
-    }
+    public static double vert = 0.48, hori = 0, wrapped = 0.95;
 
-    public static double vert = 0.4, hori = 0;
+    private boolean ispressed = false, spec = false;
 
-    private State state = State.back, lastState = State.up;
+    public static double aPitchUp=0.7, aPitchDown = 1, aPitchBack = 0.06, aPitchSpec = 0.8, specSlamPitch = 0.6;
 
-    private boolean ispressed = false, ispressed2 = false;
-
-    public static double aDown = 50, aUp = 168, aBack = 188;
-    public static double aPitchUp=0.32, aPitchDown = 0.2, aPitchBack = 0.8;
-
-    public static double armDown = degToRange(aDown), armUp = 0.6, armBack = 0.68;
-
+    public static double armDown = 1, armUp = 0.76, armBack = 0.63, armSpec = 1, specSlam = 0.5;
     public Deposit(HardwareMap hardwareMap) {
         lArm = hardwareMap.servo.get("arm");
         pitch = hardwareMap.servo.get("pitch");
@@ -33,12 +25,22 @@ public class Deposit {
         wrist = hardwareMap.servo.get("wrist");
         claw = new Claw(hardwareMap);
 
-        setArm(armDown);
-        pitch.setPosition(0.2);
-        wrist.setPosition(hori);
+        claw.directSet(Claw.closed);
     }
 
-    int incr = 1; boolean lock = false; int lincr = 0;
+    public Deposit(HardwareMap hardwareMap, boolean spec) {
+        lArm = hardwareMap.servo.get("arm");
+        pitch = hardwareMap.servo.get("pitch");
+        pitch.setDirection(Servo.Direction.REVERSE);
+        wrist = hardwareMap.servo.get("wrist");
+        claw = new Claw(hardwareMap);
+
+        claw.directSet(Claw.closed);
+
+        this.spec = spec;
+    }
+
+    public int incr = 1; boolean lock = false; int lincr = 0;
 
 
     public void process(boolean down, boolean up) {
@@ -53,12 +55,23 @@ public class Deposit {
         }
     }
 
+    private enum Wstate {
+        hori, vert, wrapped
+    }
+
+    Wstate wstate = Wstate.hori;
+
     public void update(boolean wristT, boolean clawT) {
         if (wristT && !ispressed) {
-            if (wrist.getPosition() == vert) {
-                wrist.setPosition(hori);
-            } else {
+            if (wstate == Wstate.hori) {
                 wrist.setPosition(vert);
+                wstate = Wstate.vert;
+            } else if (wstate == Wstate.vert) {
+                wrist.setPosition(wrapped);
+                wstate = Wstate.wrapped;
+            } else {
+                wrist.setPosition(hori);
+                wstate = Wstate.hori;
             }
         } ispressed = wristT;
 
@@ -66,8 +79,13 @@ public class Deposit {
 
         if (incr != lincr) {
             if (incr == 1) {
-                setArm(armUp);
-                pitch.setPosition(aPitchUp);
+                if (!spec) {
+                    setArm(armUp);
+                    pitch.setPosition(aPitchUp);
+                } else {
+                    setArm(armSpec);
+                    pitch.setPosition(aPitchSpec);
+                }
             } else if (incr == 0) {
                 setArm(armDown);
                 pitch.setPosition(aPitchDown);
@@ -88,7 +106,15 @@ public class Deposit {
     }
 
     public void setDeposit(double wristp, double pitchp, double armp, double clawp) {
-        wrist.setPosition(wristp); pitch.setPosition(pitchp); lArm.setPosition(armp); claw.directSet(clawp);
+        wrist.setPosition(wristp); setArm(armp); claw.directSet(clawp); pitch.setPosition(pitchp);
+    }
+
+    public double wristP() {
+        return wrist.getPosition();
+    }
+
+    public double readClaw(){
+        return claw.gCLaw();
     }
 
 }

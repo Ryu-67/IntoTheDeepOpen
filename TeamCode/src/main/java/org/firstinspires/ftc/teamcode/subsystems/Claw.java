@@ -30,4 +30,8 @@ public class Claw {
         claw.setPosition(p);
     }
 
+    public double gCLaw() {
+        return claw.getPosition();
+    }
+
 }

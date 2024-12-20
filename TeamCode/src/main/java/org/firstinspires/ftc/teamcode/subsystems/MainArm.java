@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 @Config
+@Deprecated
 public class MainArm {
 
     private MPPivot pivot; private Lift lift;
@@ -16,14 +17,16 @@ public class MainArm {
         intake,
         basket,
         backpickup,
-        inter
+        inter,
+        hang,
+        silly
     }
 
     private boolean override = false;
 
-    public static double vertAngle = 119, backUpAngle = 130, specimen = 50;
+    boolean flag = false;
 
-    private boolean flag = false;
+    public static double vertAngle = 90, backUpAngle = 90, specimen = 19, hangle = 63, silly = 90;
 
     public MainArm(HardwareMap hardwareMap, boolean manual) {
         pivot = new MPPivot(hardwareMap); lift = new Lift(hardwareMap, manual);
@@ -43,7 +46,7 @@ public class MainArm {
         this.lmi = lmi;
     }
 
-    private double ltg = 0;
+    private double ltg = 0, lltg = ltg;
 
     public void setLtg(double ltg) {
         this.ltg = ltg;
@@ -68,20 +71,38 @@ public class MainArm {
                     pivot.setTargetAngle(backUpAngle);
                     lift.setLimit(true);
                     break;
+                case hang:
+                    pivot.setTargetAngle(hangle);
+                    lift.setLimit(true);
+                    break;
+                case silly:
+                    pivot.setTargetAngle(silly);
+                    lift.setLimit(true);
             }
         }
 
         lState = mainState;
 
+        if (mode != lastMode) {
+            lift.setRunMode(mode);
+        }
+
         if (flag && !override) {
-            lift.setManualInput(lmi);
+            if (lltg != ltg) {
+                lift.setTarget(ltg);
+            } else {
+                lift.setManualInput(lmi);
+            }
         } else {
             lift.setManualInput(0);
             lift.setTarget(ltg);
         }
 
+
         pivot.update();
         lift.update();
+        lastMode = mode;
+        lltg = ltg;
     }
 
     public boolean stateComplete() {
@@ -92,15 +113,21 @@ public class MainArm {
         return lift.check();
     }
 
-    public void setLiftOverride(boolean enable) {
-        lift.enableOverride(enable);
+    Lift.Mode mode = Lift.Mode.target, lastMode = Lift.Mode.target;
+
+    public void setLiftMode(Lift.Mode mode) {
+        this.mode = mode;
     }
 
     public void setOverride(boolean override) {
         this.override = override;
     }
-
     public boolean readLiftReset() {
         return lift.readSensor();
     }
+
+    public double liftTicks() {
+        return lift.ticks;
+    }
+
 }

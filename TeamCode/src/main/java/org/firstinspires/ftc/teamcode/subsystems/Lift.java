@@ -2,10 +2,13 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.rr.Utils;
 
@@ -15,13 +18,14 @@ public class Lift {
     private DcMotor lLift, rLift;
     private RevTouchSensor reset;
 
-    private double target = 0, power, ticks, lastPower;
+    public double target = 0, power, ticks, lastPower, lastTarget = target, velocity = 0, indexedPosition = 0;
 
-    public static double p = 0.01, i, d;
-
+    public static double p = 0.009, i, d=0, f = 0.03;
     public PIDController controller = new PIDController(p, i, d);
 
-    private boolean manual = false;
+    public static double vel = 8000, accel = 9000;
+    private TrapezoidProfile.Constraints liftConstraints = new TrapezoidProfile.Constraints(vel, accel);
+    private TrapezoidProfile profile;
 
     public enum Mode {
         target,
@@ -29,12 +33,12 @@ public class Lift {
         hang
     }
 
-    Mode runMode = Mode.target, lastMode = runMode;
+    private Mode runMode = Mode.target, lastMode = runMode;
 
     public Lift(HardwareMap hardwareMap, boolean manual) {
         rLift = hardwareMap.dcMotor.get("rLift");
         lLift = hardwareMap.dcMotor.get("lLift");
-        lLift.setDirection(DcMotorSimple.Direction.REVERSE);
+        rLift.setDirection(DcMotorSimple.Direction.REVERSE);
 
         lLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -53,6 +57,37 @@ public class Lift {
         } else {
             runMode = Mode.target;
         }
+        profile = new TrapezoidProfile(liftConstraints, new TrapezoidProfile.State(0,0)); compEnabled = false;
+    }
+
+    private VoltageSensor voltageSensor; private boolean compEnabled = false;
+
+    public Lift(HardwareMap hardwareMap, boolean manual, VoltageSensor voltageSensor) {
+        rLift = hardwareMap.dcMotor.get("rLift");
+        lLift = hardwareMap.dcMotor.get("lLift");
+        rLift.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        lLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        rLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        lLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        lLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+        reset = hardwareMap.get(RevTouchSensor.class, "lReset");
+
+        controller.setTolerance(10);
+
+        if (manual) {
+            runMode = Mode.manual;
+        } else {
+            runMode = Mode.target;
+        }
+
+        this.voltageSensor = voltageSensor; compEnabled = true;
+
+        profile = new TrapezoidProfile(liftConstraints, new TrapezoidProfile.State(0,0));
     }
 
     public double readTicks(double ticks) {
@@ -77,7 +112,7 @@ public class Lift {
         mInput = input;
     }
 
-    private double l1 = 2600, l2 = 1600, limit = l2;
+    public static double l1 = 2400, l2 = 1260, limit = l2;
 
     public void setLimit(boolean vertical) {
         if (vertical) {
@@ -87,69 +122,72 @@ public class Lift {
         }
     }
 
-    public static double hangPower = .45, pullPower = 0.6;
-
     public void setRunMode(Mode runMode) {
         this.runMode = runMode;
     }
+
+    ElapsedTime fullTimer = new ElapsedTime();
+    ElapsedTime velTimer = new ElapsedTime();
 
     public void update() {
         ticks = readTicks(Math.abs(lLift.getCurrentPosition()));
 
         if (runMode == Mode.manual) {
-            double dt = 45*mInput;
-            if (target + dt > limit) {
+            target = target + (50 * mInput);
+            if (target >= limit) {
                 target = limit;
-            } else if (target + dt < 0) {
+            } else if (target < 0) {
                 target = 0;
-            } else {
-                target += dt;
             }
-        } else if (runMode == Mode.hang) {
-            apply(hangPower);
-            return;
+            controller.setSetPoint(target);
+        } else {
+            if (target != lastTarget) {
+                if (target >= limit) {
+                    target = limit;
+                } else if (target < 0) {
+                    target = 0;
+                }
+                liftConstraints = new TrapezoidProfile.Constraints(vel, accel);
+                profile = new TrapezoidProfile(liftConstraints, new TrapezoidProfile.State(target, 0),
+                        new TrapezoidProfile.State(ticks, velocity));
+                fullTimer.reset();
+            }
+
+            indexedPosition = profile.calculate(fullTimer.seconds()).position;
+            controller.setSetPoint(indexedPosition);
         }
-
-        if (target >= limit) {
-            target = limit;
-        } else if (target < 0) {
-            target = 0;
-        }
-
-        controller.setSetPoint(target);
-
         power = controller.calculate(ticks);
 
         if (target == 0 && reset.isPressed()) {
-            apply(0);
-        } else {
-            apply(power * override);
+            power = 0;
+            apply(power);
+        } else if (Utils.valInThresh(power, lastPower, 0.05)) {
+            apply(power);
+            lastPower = power;
         }
 
-        lastMode = runMode;
+        lastTarget = target;
+        velocity = (target-lastTarget)/velTimer.seconds();
+        velTimer.reset();
     }
 
     public double getTicks() {
         return ticks;
     }
 
-    private void apply(double p) {
-        lLift.setPower(p);
-        rLift.setPower(p);
+    public void apply(double p) {
+        if (compEnabled) {
+            double comp = Robot.universalVoltage/voltageSensor.getVoltage();
+            rLift.setPower(p * comp);
+            lLift.setPower(p * comp);
+        } else {
+            rLift.setPower(p);
+            lLift.setPower(p);
+        }
     }
 
     public boolean check() {
         return controller.atSetPoint();
-    }
-
-    double override = 1;
-
-    public void enableOverride(boolean enable) {
-        if (enable) {
-            override = 0;
-        } else {
-            override = 1;
-        }
     }
 
     public boolean readSensor() {

@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.rr.messages.PoseMessage;
+import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
 
 /**
  * Experimental extension of MecanumDrive that uses the SparkFun OTOS sensor for localization.
@@ -39,7 +40,7 @@ public class SparkFunOTOSDrive extends MecanumDrive {
         // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
 
         // RR localizer note: These units are inches and radians.
-        public SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(2.5, 0, Math.toRadians(90));
+        public SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(-2.5, 0, Math.toRadians(90));
 
         // Here we can set the linear and angular scalars, which can compensate for
         // scaling issues with the sensor measurements. Note that as of firmware
@@ -65,6 +66,8 @@ public class SparkFunOTOSDrive extends MecanumDrive {
     public SparkFunOTOSCorrected otos;
     private Pose2d lastOtosPose = pose;
 
+    //note for later: y offset  -0.18208206224238122
+
     private final DownsampledWriter estimatedPoseWriter = new DownsampledWriter("ESTIMATED_POSE", 50_000_000);
 
     public SparkFunOTOSDrive(HardwareMap hardwareMap, Pose2d pose) {
@@ -81,6 +84,8 @@ public class SparkFunOTOSDrive extends MecanumDrive {
         System.out.println("OTOS calibration beginning!");
         System.out.println(otos.setLinearScalar(PARAMS.linearScalar));
         System.out.println(otos.setAngularScalar(PARAMS.angularScalar));
+
+        otos.resetTracking();
 
         otos.setPosition(RRPoseToOTOSPose(pose));
         // The IMU on the OTOS includes a gyroscope and accelerometer, which could
@@ -100,8 +105,7 @@ public class SparkFunOTOSDrive extends MecanumDrive {
         // this would allow your OpMode code to run while the calibration occurs.
         // However, that may cause other issues.
         // In the future I hope to do that by default and just add a check in updatePoseEstimate for it
-        System.out.println(otos.calibrateImu(255, true));
-        System.out.println("OTOS calibration complete!");
+        otos.calibrateImu(255, true);
     }
     @Override
     public PoseVelocity2d updatePoseEstimate() {

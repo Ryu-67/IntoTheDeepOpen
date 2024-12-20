@@ -1,16 +1,20 @@
 package org.firstinspires.ftc.teamcode.tuners;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.subsystems.Claw;
 import org.firstinspires.ftc.teamcode.subsystems.Deposit;
 
-@Disabled
 @TeleOp
+@Config
 public class ArmT extends OpMode {
 
     Deposit arm;
+
+    public static double armPos, wristPos, pitch, claw;
 
     @Override
     public void init() {
@@ -19,7 +23,6 @@ public class ArmT extends OpMode {
 
     @Override
     public void loop() {
-        arm.process(gamepad1.dpad_down, gamepad1.dpad_up);
-        arm .update(gamepad1.left_bumper, gamepad1.right_bumper);
+        arm.setDeposit(wristPos, pitch, armPos, claw);
     }
 }

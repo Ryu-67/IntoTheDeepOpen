@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.rr;
+package org.firstinspires.ftc.teamcode.subsystems;
 
 import androidx.annotation.NonNull;
 
@@ -41,6 +41,8 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.rr.Drawing;
+import org.firstinspires.ftc.teamcode.rr.Localizer;
 import org.firstinspires.ftc.teamcode.rr.messages.DriveCommandMessage;
 import org.firstinspires.ftc.teamcode.rr.messages.MecanumCommandMessage;
 import org.firstinspires.ftc.teamcode.rr.messages.MecanumLocalizerInputsMessage;
@@ -64,18 +66,18 @@ public class MecanumDrive {
 
         // drive model parameters
         public double inPerTick = 1; // SparkFun OTOS Note: you can probably leave this at 1
-        public double lateralInPerTick = 0.4427093806945016;
+        public double lateralInPerTick = 0.46574421413286304;
         public double trackWidthTicks = 11.351599296100817;
 
         // feedforward parameters (in tick units)
         public double kS = 1.3061679940683986;
-        public double kV = 0.12;
+        public double kV = 0.15309656100083263;
         public double kA = 0.04;
 
         // path profile parameters (in inches)
-        public double maxWheelVel = 50;
+        public double maxWheelVel = 65;
         public double minProfileAccel = -30;
-        public double maxProfileAccel = 40;
+        public double maxProfileAccel = 48;
 
         // turn profile parameters (in radians)
         public double maxAngVel = 2*Math.PI; // shared with path
@@ -83,7 +85,7 @@ public class MecanumDrive {
 
         // path controller gains
         public double axialGain = 9.0;
-        public double lateralGain = 3.0;
+        public double lateralGain = 5.0;
         public double headingGain = 6; // shared with turn
 
         public double axialVelGain = 0.0;
@@ -215,18 +217,18 @@ public class MecanumDrive {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        leftFront = hardwareMap.get(DcMotorEx.class, "frontLeft");
-        leftBack = hardwareMap.get(DcMotorEx.class, "backLeft");
-        rightBack = hardwareMap.get(DcMotorEx.class, "backRight");
-        rightFront = hardwareMap.get(DcMotorEx.class, "frontRight");
+        leftFront = hardwareMap.get(DcMotorEx.class, "backLeft");
+        leftBack = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        rightBack = hardwareMap.get(DcMotorEx.class, "frontRight");
+        rightFront = hardwareMap.get(DcMotorEx.class, "backRight");
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
         lazyImu = new LazyImu(hardwareMap, "imu", new RevHubOrientationOnRobot(
                 PARAMS.logoFacingDirection, PARAMS.usbFacingDirection));

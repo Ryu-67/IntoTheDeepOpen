@@ -9,14 +9,16 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.MPPivot;
 
-@Disabled
 @Config
 @TeleOp
+@Disabled
 public class MPPivotTuner extends OpMode {
 
     private MPPivot pivot;
 
     public static double target;
+
+    public static boolean enabled = false;
 
     @Override
     public void init() {
@@ -26,8 +28,12 @@ public class MPPivotTuner extends OpMode {
 
     @Override
     public void loop() {
-        pivot.setTargetAngle(target);
+        if (enabled) {
+            pivot.setTargetAngle(target);
+        }
         pivot.update();
+        telemetry.addData("anlge", Math.toDegrees(pivot.angle));
+        telemetry.addData("is reset pressed", pivot.flag);
         telemetry.update();
     }
 }

@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Lift;
 
 @TeleOp
 @Config
-@Disabled
 public class LiftTuner extends OpMode {
 
     private Lift lift;
