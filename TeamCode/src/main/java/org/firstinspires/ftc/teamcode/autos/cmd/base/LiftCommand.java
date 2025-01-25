@@ -26,9 +26,6 @@ public class LiftCommand extends CommandBase {
     @Override
     public void execute() {
         if (f) {
-            if (target > Lift.l2 && target < Lift.l1) {
-                lift.setLimit(true);
-            }
             lift.setTarget(target);
             f = false;
         }
@@ -36,7 +33,11 @@ public class LiftCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return lift.check();
+        if (f) {
+            return false;
+        } else {
+            return Math.abs(target-lift.ticks) < 10;
+        }
     }
 
 }

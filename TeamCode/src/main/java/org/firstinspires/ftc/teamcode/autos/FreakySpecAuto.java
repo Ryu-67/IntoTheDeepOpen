@@ -2,24 +2,22 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.autos.cmd.base.ArmCommand;
 import org.firstinspires.ftc.teamcode.autos.cmd.base.LiftCommand;
-import org.firstinspires.ftc.teamcode.autos.cmd.base.PivotCompletionCommand;
+import org.firstinspires.ftc.teamcode.autos.cmd.base.PivotCommand;
 import org.firstinspires.ftc.teamcode.autos.cmd.base.RoadrunnerCommand;
-import org.firstinspires.ftc.teamcode.autos.cmd.spec.PickAndFlipCommand;
-import org.firstinspires.ftc.teamcode.autos.cmd.spec.SpecCycle;
-import org.firstinspires.ftc.teamcode.autos.cmd.spec.SpecSlamAutoCommand;
-import org.firstinspires.ftc.teamcode.autos.cmd.spec.SpecSlamCommand;
-import org.firstinspires.ftc.teamcode.rr.SparkFunOTOSDrive;
+import org.firstinspires.ftc.teamcode.autos.cmd.spec.PreSlamCommand;
+import org.firstinspires.ftc.teamcode.autos.cmd.spec.ToSlamCommand;
+import org.firstinspires.ftc.teamcode.rr.SparkFunOTOSDriveRR;
 import org.firstinspires.ftc.teamcode.subsystems.Claw;
 import org.firstinspires.ftc.teamcode.subsystems.Deposit;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
@@ -32,126 +30,231 @@ public class FreakySpecAuto extends LinearOpMode {
 
     public Robot robot;
 
-    public Lift lift; public MPPivot pivot; public Deposit deposit; public SparkFunOTOSDrive drive;
+    public Lift lift; public MPPivot pivot; public Deposit deposit; public SparkFunOTOSDriveRR drive;
 
-    Action initial, grab1, drop1, grab2, drop2, grab3, drop3, precycle, slam1, pick, cycle, pick2, slam3;
+    Action initial, setup, d1, t1, d2, t2, d3, initialCycle, cycle, cycle2, returnC, return2, precycle, MOVE;
 
     CommandScheduler actionQueue = CommandScheduler.getInstance();
 
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap, false, true, false);
-        drive = new SparkFunOTOSDrive(hardwareMap, new Pose2d(7.4, -63.5, Math.toRadians(-90)));
+        drive = new SparkFunOTOSDriveRR(hardwareMap, new Pose2d(7.4, -63.5, Math.toRadians(90)));
         lift = robot.lift; pivot = robot.pivot; deposit = robot.deposit;
 
-        initial = drive.actionBuilder(new Pose2d(7.4, -63.5, Math.toRadians(-90)))
-                .setTangent(-Math.toRadians(90))
-                .lineToY(-35)
+
+        initial = drive.actionBuilder(new Pose2d(7.4, -63.5, Math.toRadians(90)))
+                .setTangent(-Math.toRadians(-90))
+                .splineToConstantHeading(new Vector2d(-4, -29), Math.toRadians(90))
                 .build();
 
-        grab1 = drive.actionBuilder(new Pose2d(7.4, -35, Math.toRadians(-90)))
+        setup = drive.actionBuilder(new Pose2d(-4, -29, Math.toRadians(90)))
                 .setTangent(Math.toRadians(-90))
-                .splineToSplineHeading(new Pose2d(26, -38, Math.toRadians(26)), Math.toRadians(26))
-                .build();
-
-        drop1 = drive.actionBuilder(new Pose2d(26, -38, Math.toRadians(26)))
-                .turn(Math.toRadians(-65))
-                .build();
-
-        grab2 = drive.actionBuilder(new Pose2d(26, -38, Math.toRadians(26-65)))
+                .lineToY(-42)
                 .setTangent(0)
-                .lineToXSplineHeading(34, Math.toRadians(24))
+                .lineToXLinearHeading(46, Math.toRadians(90))
+//                .setTangent(Math.toRadians(-90))
+//                .splineToSplineHeading(new Pose2d(31.8, -33, Math.toRadians(45)), Math.toRadians(45))
                 .build();
 
-        drop2 = drive.actionBuilder(new Pose2d(34, -38, Math.toRadians(24)))
-                .turn(-Math.toRadians(65))
+        d1 = drive.actionBuilder(new Pose2d(46, -42, Math.toRadians(90)))
+                .setTangent(-90)
+                .lineToY(-52)
+//                .turnTo(Math.toRadians(-45))
                 .build();
 
-        grab3 = drive.actionBuilder(new Pose2d(34, -38, Math.toRadians(24-65)))
-                .setTangent(0)
-                .lineToXSplineHeading(43, Math.toRadians(22))
-                .build();
-
-        drop3 = drive.actionBuilder(new Pose2d(26, -38, Math.toRadians(24-65)))
-                .setTangent(Math.toRadians(-45))
-                .splineToLinearHeading(new Pose2d(42, -50, Math.toRadians(-90)), Math.toRadians(-90))
-                .build();
-
-        precycle = drive.actionBuilder(new Pose2d(42, -50, Math.toRadians(-90)))
-                .setTangent(Math.toRadians(-90))
-                .lineToY(-55)
-                .build();
-
-        slam1 = drive.actionBuilder(new Pose2d(36, -52, Math.toRadians(-90)))
+        t1 = drive.actionBuilder(new Pose2d(46, -52, Math.toRadians(90)))
+//                        .setTangent(0)
+//                .turnTo(Math.toRadians(24.2))
+//                .lineToX(32)
                 .setTangent(Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(10, -35), Math.toRadians(90))
-                .build();
+                .splineToConstantHeading(new Vector2d(56.5, -42), Math.toRadians(90))
+                                .build();
 
-        pick = drive.actionBuilder(new Pose2d(10, -35, Math.toRadians(-90)))
-                .setTangent(Math.toRadians(-90))
-                .splineToLinearHeading(new Pose2d(37, -50, Math.toRadians(-45)), Math.toRadians(-45))
-                .build();
+        d2 = drive.actionBuilder(new Pose2d(56.5, -42, Math.toRadians(90)))
+                         .setTangent(Math.toRadians(-90))
+                .lineToY(-52)
+                                .build();
 
-        cycle = drive.actionBuilder(new Pose2d(37, -50, Math.toRadians(-45)))
+        t2 = drive.actionBuilder(new Pose2d(56.5, -52, Math.toRadians(90)))
+//                        .setTangent(0)
+//                                .lineToXSplineHeading(41, Math.toRadians(24))
+                .setTangent(Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(58, -40, Math.toRadians(50)), Math.toRadians(50))
+                                        .build();
+
+        d3 = drive.actionBuilder(new Pose2d(58, -40, Math.toRadians(50)))
+//                        .turnTo(Math.toRadians(-45))
+                .setTangent(Math.toRadians(220))
+                .splineToLinearHeading(new Pose2d(50, -52, Math.toRadians(90)), Math.toRadians(-90))
+                                .build();
+
+        precycle = drive.actionBuilder(new Pose2d(57, -44, Math.toRadians(90)))
+                .setTangent(Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(36, -62.5), Math.toRadians(-90))
+                                        .build();
+
+        initialCycle = drive.actionBuilder(new Pose2d(36, -60, Math.toRadians(90)))
                 .setTangent(Math.toRadians(135))
-                .splineToLinearHeading(new Pose2d(0, -35, Math.toRadians(-90)), Math.toRadians(90))
+                .splineToLinearHeading(new Pose2d(-3, -29, Math.toRadians(90)), Math.toRadians(90))
+                .build();
+
+        returnC = drive.actionBuilder(new Pose2d(-3, -29, Math.toRadians(90)))
+                .setTangent(Math.toRadians(-90))
+                .splineToLinearHeading(new Pose2d(37, -62, Math.toRadians(90)), Math.toRadians(-45))
+                .build();
+
+        cycle = drive.actionBuilder(new Pose2d(37, -62, Math.toRadians(90)))
+                .setTangent(Math.toRadians(135))
+                .splineToLinearHeading(new Pose2d(-2, -27, Math.toRadians(90)), Math.toRadians(90))
+                .build();
+
+        return2 = drive.actionBuilder(new Pose2d(-2, -27, Math.toRadians(90)))
+                .setTangent(Math.toRadians(-90))
+                .splineToLinearHeading(new Pose2d(37, -63, Math.toRadians(90)), Math.toRadians(-45))
+                        .build();
+
+        cycle2 = drive.actionBuilder(new Pose2d(37, -63, Math.toRadians(90)))
+                .setTangent(Math.toRadians(135))
+                .splineToLinearHeading(new Pose2d(-4, -27, Math.toRadians(90)), Math.toRadians(90))
+                .build();
+
+        MOVE = drive.actionBuilder(new Pose2d(-4, -27, Math.toRadians(90)))
+                .setTangent(Math.toRadians(-90))
+                .lineToY(-50)
                 .build();
 
         pivot.setTargetAngle(MainArm.vertAngle);
-        deposit.setDeposit(0, 0.01, 0.01, Claw.closed);
+
+        deposit.setDeposit(Deposit.hori, 0.01, 0.01, Claw.closed);
+
+        actionQueue.reset();
+        actionQueue = CommandScheduler.getInstance();
+        actionQueue.cancelAll();
+        actionQueue.disable();
+        actionQueue.enable();
 
         while (!opModeIsActive() && opModeInInit()) {
             pivot.update();
-            drive.otos.setPosition(new SparkFunOTOS.Pose2D(7.4, -63.5, Math.toRadians(-90)));
+            drive.otos.setPosition(new SparkFunOTOS.Pose2D(7.4, -63.5, Math.toRadians(90)));
         }
 
         actionQueue.schedule(
-                //Initial slam
-                new ParallelCommandGroup(
-                        new RoadrunnerCommand(initial),
-                        new LiftCommand(lift, PickAndFlipCommand.specHeight),
-                        new ArmCommand(deposit, ArmCommand.DepositState.specDepo, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal)
-                ),
-                //Grabcycles
                 new SequentialCommandGroup(
-                        new SpecSlamAutoCommand(deposit, lift, pivot),
+                        new ArmCommand(deposit, ArmCommand.DepositState.specSlam, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal),
                         new ParallelCommandGroup(
-                                new ArmCommand(deposit, ArmCommand.DepositState.floorIntake, ArmCommand.ClawState.open, ArmCommand.WristState.vertical),
-                                new SequentialCommandGroup(
-                                        new PivotCompletionCommand(pivot, 0),
-                                        new LiftCommand(lift, Lift.l2)
-                                ),
-                                new RoadrunnerCommand(grab1)
+                                new RoadrunnerCommand(initial),
+                                new ToSlamCommand(deposit, lift, pivot)
                         ),
-                        new ArmCommand(deposit, ArmCommand.DepositState.floorIntake, ArmCommand.ClawState.closed, ArmCommand.WristState.vertical),
-                        new RoadrunnerCommand(drop1),
-                        new ArmCommand(deposit, ArmCommand.DepositState.floorIntake, ArmCommand.ClawState.open, ArmCommand.WristState.vertical),
-                        new RoadrunnerCommand(grab2),
-                        new ArmCommand(deposit, ArmCommand.DepositState.floorIntake, ArmCommand.ClawState.closed, ArmCommand.WristState.vertical),
-                        new RoadrunnerCommand(drop2),
-                        new ArmCommand(deposit, ArmCommand.DepositState.floorIntake, ArmCommand.ClawState.open, ArmCommand.WristState.vertical),
-                        new RoadrunnerCommand(grab3),
-                        new ArmCommand(deposit, ArmCommand.DepositState.floorIntake, ArmCommand.ClawState.closed, ArmCommand.WristState.vertical),
                         new ParallelCommandGroup(
-                                new RoadrunnerCommand(drop3),
+                                new ArmCommand(deposit, ArmCommand.DepositState.specSlam, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
+                                new RoadrunnerCommand(setup),
+                                new SequentialCommandGroup(
+                                        new LiftCommand(lift, 0),
+                                        new PivotCommand(pivot, 0),
+                                        new ArmCommand(deposit, ArmCommand.DepositState.shoot, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
+                                        new WaitCommand(1000),
+                                        new ArmCommand(deposit, ArmCommand.DepositState.floorIntake, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal)
+                                )
+                        ),
+                        new ArmCommand(deposit, ArmCommand.DepositState.floorIntake, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal),
+                        new ParallelCommandGroup(
+                                new ArmCommand(deposit, ArmCommand.DepositState.shoot, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal),
+                                new SequentialCommandGroup(
+                                        new ParallelCommandGroup(
+                                                new RoadrunnerCommand(d1),
+                                                new PivotCommand(pivot, 90)
+                                        ),
+                                        new ArmCommand(deposit, ArmCommand.DepositState.shoot, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal)
+                                )
+                        ),
+                        new ParallelCommandGroup(
+                                new ArmCommand(deposit, ArmCommand.DepositState.floorIntake, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
+                                new PivotCommand(pivot, 0),
+                                new LiftCommand(lift, 0),
+                                new RoadrunnerCommand(t1)
+                        ),
+                        new ArmCommand(deposit, ArmCommand.DepositState.floorIntake   , ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal),
+                        new ParallelCommandGroup(
+                                new ArmCommand(deposit, ArmCommand.DepositState.shoot, ArmCommand.ClawState.closed, ArmCommand.WristState.vertical),
+                                new PivotCommand(pivot, 90),
+                                new RoadrunnerCommand(d2)
+                        ),
+                        new ArmCommand(deposit, ArmCommand.DepositState.shoot, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
+                        new ParallelCommandGroup(
+                                new LiftCommand(lift, 0),
+                                new PivotCommand(pivot, 0),
+                                new ArmCommand(deposit, ArmCommand.DepositState.floorIntake, ArmCommand.ClawState.open, ArmCommand.WristState.diagonal),
+                                new RoadrunnerCommand(t2)
+                        ),
+                        new ArmCommand(deposit, ArmCommand.DepositState.floorIntake   , ArmCommand.ClawState.closed, ArmCommand.WristState.diagonal),
+                        new ParallelCommandGroup(
+                                new ArmCommand(deposit, ArmCommand.DepositState.shoot, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal),
+                                new PivotCommand(pivot, 90),
+                                new LiftCommand(lift, 0),
+                                new RoadrunnerCommand(d3)
+                        ),
+                        new ArmCommand(deposit, ArmCommand.DepositState.shoot, ArmCommand.ClawState.open, ArmCommand.WristState.wrapped),
+                        new SequentialCommandGroup(
+                                new RoadrunnerCommand(precycle),
+                               new PreSlamCommand(pivot, lift, deposit)
+                        ),
+                        new ArmCommand(deposit, ArmCommand.DepositState.specIntake, ArmCommand.ClawState.closed, ArmCommand.WristState.wrapped),
+                        new SequentialCommandGroup(
+                                new ParallelCommandGroup(
+                                        new ArmCommand(deposit, ArmCommand.DepositState.specSlam, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal),
+                                        new ToSlamCommand(deposit, lift, pivot),
+                                        new RoadrunnerCommand(initialCycle)
+                                )
+                        ),
+                        new ParallelCommandGroup(
+                                new RoadrunnerCommand(returnC),
+                                new SequentialCommandGroup(
+                                        new ArmCommand(deposit, ArmCommand.DepositState.specSlam, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
+                                        new LiftCommand(lift, 0),
+                                        new PreSlamCommand(pivot, lift, deposit)
+                                )
+                        ),
+                        new ArmCommand(deposit, ArmCommand.DepositState.specIntake, ArmCommand.ClawState.closed, ArmCommand.WristState.wrapped),
+                        new SequentialCommandGroup(
+                                new ParallelCommandGroup(
+                                        new ArmCommand(deposit, ArmCommand.DepositState.specSlam, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal),
+                                        new ToSlamCommand(deposit, lift, pivot),
+                                        new RoadrunnerCommand(cycle)
+                                )
+                        ),
+                        new ParallelCommandGroup(
+                                new RoadrunnerCommand(return2),
+                                new SequentialCommandGroup(
+                                        new ArmCommand(deposit, ArmCommand.DepositState.specSlam, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
+                                        new LiftCommand(lift, 0),
+                                        new PreSlamCommand(pivot, lift, deposit)
+                                )
+                        ),
+                        new ArmCommand(deposit, ArmCommand.DepositState.specIntake, ArmCommand.ClawState.closed, ArmCommand.WristState.wrapped),
+                        new SequentialCommandGroup(
+                                new ParallelCommandGroup(
+                                        new ArmCommand(deposit, ArmCommand.DepositState.specSlam, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal),
+                                        new ToSlamCommand(deposit, lift, pivot),
+                                        new RoadrunnerCommand(cycle2)
+                                )
+                        ),
+                        new ParallelCommandGroup(
+                                new SequentialCommandGroup(
+                                        new ParallelCommandGroup(
+                                                new RoadrunnerCommand(MOVE),
+                                                new ArmCommand(deposit, ArmCommand.DepositState.specSlam, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal)
+                                        ),
+                                        new PivotCommand(pivot, 0)
+                                ),
                                 new LiftCommand(lift, 0)
                         )
-                ),
-                //Final drop
-                new ArmCommand(deposit, ArmCommand.DepositState.specIntake, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
-                new RoadrunnerCommand(precycle),
-                //Begin Cycles
-                new ParallelCommandGroup(
-                        new PickAndFlipCommand(deposit, lift, pivot),
-                        new RoadrunnerCommand(slam1)
-                ),
-                new SpecCycle(lift, pivot, deposit, pick, cycle),
-                new SpecCycle(lift, pivot, deposit, pick, cycle),
-                new SpecCycle(lift, pivot, deposit, pick, cycle)
+                )
         );
 
         while (opModeIsActive()) {
             robot.update();
+
             actionQueue.run();
 
             if (isStopRequested()) {

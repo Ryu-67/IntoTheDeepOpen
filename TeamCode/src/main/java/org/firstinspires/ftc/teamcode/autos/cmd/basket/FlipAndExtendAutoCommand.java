@@ -15,8 +15,8 @@ public class FlipAndExtendAutoCommand extends SequentialCommandGroup {
     {
         addCommands(
                 new LiftCommand(lift, 0),
-                new PivotCommand(pivot, 90),
-                new LiftCommand(lift, 2620),
+                new PivotCommand(pivot, 86),
+                new LiftCommand(lift, 2280),
                 new ArmCommand(deposit, ArmCommand.DepositState.basketDepo, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal)
         );
     }

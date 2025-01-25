@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.autos.cmd.spec;
 
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 
 import org.firstinspires.ftc.teamcode.autos.cmd.base.ArmCommand;
 import org.firstinspires.ftc.teamcode.autos.cmd.base.LiftCommand;
@@ -15,8 +17,9 @@ public class SpecSlamAutoCommand extends SequentialCommandGroup {
     {
         addCommands(
                 new ArmCommand(deposit, ArmCommand.DepositState.specSlam, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal),
-                new ArmCommand(deposit, ArmCommand.DepositState.floorSpec, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
-                new LiftCommand(lift, 0)
+                new WaitCommand(50),
+                new LiftCommand(lift, 80),
+                new ArmCommand(deposit, ArmCommand.DepositState.floorSpec, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal)
         );
     }
 

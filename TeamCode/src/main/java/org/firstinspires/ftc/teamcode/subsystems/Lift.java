@@ -5,22 +5,26 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.rr.Utils;
 
 @Config
 public class Lift {
 
-    private DcMotor lLift, rLift;
+    private DcMotorEx lLift, rLift;
     private RevTouchSensor reset;
 
     public double target = 0, power, ticks, lastPower, lastTarget = target, velocity = 0, indexedPosition = 0;
 
     public static double p = 0.009, i, d=0, f = 0.03;
+
+    public static double hp = 0.1, hi, hd, hf;
     public PIDController controller = new PIDController(p, i, d);
 
     public static double vel = 8000, accel = 9000;
@@ -36,8 +40,8 @@ public class Lift {
     private Mode runMode = Mode.target, lastMode = runMode;
 
     public Lift(HardwareMap hardwareMap, boolean manual) {
-        rLift = hardwareMap.dcMotor.get("rLift");
-        lLift = hardwareMap.dcMotor.get("lLift");
+        rLift = ((DcMotorEx) hardwareMap.dcMotor.get("rLift"));
+        lLift = ((DcMotorEx) hardwareMap.dcMotor.get("lLift"));
         rLift.setDirection(DcMotorSimple.Direction.REVERSE);
 
         lLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -50,7 +54,7 @@ public class Lift {
 
         reset = hardwareMap.get(RevTouchSensor.class, "lReset");
 
-        controller.setTolerance(10);
+        controller.setTolerance(35);
 
         if (manual) {
             runMode = Mode.manual;
@@ -63,8 +67,8 @@ public class Lift {
     private VoltageSensor voltageSensor; private boolean compEnabled = false;
 
     public Lift(HardwareMap hardwareMap, boolean manual, VoltageSensor voltageSensor) {
-        rLift = hardwareMap.dcMotor.get("rLift");
-        lLift = hardwareMap.dcMotor.get("lLift");
+        rLift = ((DcMotorEx) hardwareMap.dcMotor.get("rLift"));
+        lLift = ((DcMotorEx) hardwareMap.dcMotor.get("lLift"));
         rLift.setDirection(DcMotorSimple.Direction.REVERSE);
 
         lLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -77,7 +81,7 @@ public class Lift {
 
         reset = hardwareMap.get(RevTouchSensor.class, "lReset");
 
-        controller.setTolerance(10);
+        controller.setTolerance(35);
 
         if (manual) {
             runMode = Mode.manual;
@@ -112,7 +116,7 @@ public class Lift {
         mInput = input;
     }
 
-    public static double l1 = 2400, l2 = 1260, limit = l2;
+    public static double l1 = 2280, l2 = 1260, limit = l2;
 
     public void setLimit(boolean vertical) {
         if (vertical) {
@@ -129,6 +133,10 @@ public class Lift {
     ElapsedTime fullTimer = new ElapsedTime();
     ElapsedTime velTimer = new ElapsedTime();
 
+    public void setPID(double p) {
+        controller.setPID(p, 0, d);
+    }
+
     public void update() {
         ticks = readTicks(Math.abs(lLift.getCurrentPosition()));
 
@@ -140,6 +148,7 @@ public class Lift {
                 target = 0;
             }
             controller.setSetPoint(target);
+        } else if (runMode == Mode.hang) {
         } else {
             if (target != lastTarget) {
                 if (target >= limit) {
@@ -156,6 +165,7 @@ public class Lift {
             indexedPosition = profile.calculate(fullTimer.seconds()).position;
             controller.setSetPoint(indexedPosition);
         }
+
         power = controller.calculate(ticks);
 
         if (target == 0 && reset.isPressed()) {
@@ -192,6 +202,10 @@ public class Lift {
 
     public boolean readSensor() {
         return reset.isPressed();
+    }
+
+    public double readCurrent() {
+        return (lLift.getCurrent(CurrentUnit.AMPS) + rLift.getCurrent(CurrentUnit.AMPS))/2;
     }
 
 }

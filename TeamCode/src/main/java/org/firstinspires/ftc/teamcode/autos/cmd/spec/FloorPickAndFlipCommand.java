@@ -12,13 +12,13 @@ import org.firstinspires.ftc.teamcode.subsystems.MPPivot;
 
 public class FloorPickAndFlipCommand extends SequentialCommandGroup {
 
-    public static double specHeight = 910;
+    public static double specHeight = 130;
 
     public FloorPickAndFlipCommand(Deposit deposit, Lift lift, MPPivot pivot)
     {
         addCommands(
                 new ParallelCommandGroup(
-                        new ArmCommand(deposit, ArmCommand.DepositState.specSlam, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal),
+                        new ArmCommand(deposit, ArmCommand.DepositState.specSlam, ArmCommand.ClawState.closed, ArmCommand.WristState.wrapped),
                         new PivotCommand(pivot,  90)
                 ),
                 new LiftCommand(lift, specHeight)

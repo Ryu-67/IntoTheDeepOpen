@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.autos.cmd.basket;
 
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 
@@ -18,9 +19,18 @@ public class DropAndResetCommand extends SequentialCommandGroup {
         addCommands(
                 new ArmCommand(deposit, ArmCommand.DepositState.basketDepo, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
                 new ArmCommand(deposit, ArmCommand.DepositState.floorIntake, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
-                new LiftCommand(lift, 0),
-                new PivotCommand(pivot, 0),
-                new ArmCommand(deposit, ArmCommand.DepositState.basketDepo, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
+                new SequentialCommandGroup(
+                        new ParallelCommandGroup(
+                                new SequentialCommandGroup(
+                                        new LiftCommand(lift, 0),
+                                        new PivotCommand(pivot, 0)
+                                        ),
+                                new SequentialCommandGroup(
+                                        new WaitCommand(500),
+                                        new ArmCommand(deposit, ArmCommand.DepositState.basketDepo, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal)
+                                )
+                        )
+                ),
                 new LiftLimitCommand(lift, false)
         );
     }

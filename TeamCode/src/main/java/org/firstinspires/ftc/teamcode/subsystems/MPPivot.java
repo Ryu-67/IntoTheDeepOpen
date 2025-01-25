@@ -21,7 +21,7 @@ public class MPPivot {
 
     private PIDController controller = new PIDController(p, i, d);
     private TrapezoidProfile profile;
-    TrapezoidProfile.Constraints upConstraints = new TrapezoidProfile.Constraints(2*Math.PI, 10*Math.PI), downConstraints = new TrapezoidProfile.Constraints(Math.PI, 3*Math.PI);
+    TrapezoidProfile.Constraints upConstraints = new TrapezoidProfile.Constraints(2*Math.PI, 10*Math.PI), downConstraints = new TrapezoidProfile.Constraints(1.5*Math.PI, 4*Math.PI);
     public static double p = 3.5, i = 0, d = 0.05, k = 0.1;
 
     public double tpr = (537.7*(2.66666666666666667)*(2))/(2*Math.PI);

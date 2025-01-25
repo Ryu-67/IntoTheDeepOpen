@@ -54,7 +54,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Config
-public class MecanumDrive {
+public class RRMecanumDrive {
     public static class Params {
         // IMU orientation
         // TODO: fill in these values based on
@@ -66,26 +66,26 @@ public class MecanumDrive {
 
         // drive model parameters
         public double inPerTick = 1; // SparkFun OTOS Note: you can probably leave this at 1
-        public double lateralInPerTick = 0.46574421413286304;
+        public double lateralInPerTick = 0.6951358597808364;
         public double trackWidthTicks = 11.351599296100817;
 
         // feedforward parameters (in tick units)
-        public double kS = 1.3061679940683986;
-        public double kV = 0.15309656100083263;
-        public double kA = 0.04;
+        public double kS = 1.601121268777797;
+        public double kV = 0.16;
+        public double kA = 0.02;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 65;
-        public double minProfileAccel = -30;
+        public double minProfileAccel = -48;
         public double maxProfileAccel = 48;
 
         // turn profile parameters (in radians)
-        public double maxAngVel = 2*Math.PI; // shared with path
-        public double maxAngAccel = Math.PI;
+        public double maxAngVel = 4*Math.PI; // shared with path
+        public double maxAngAccel = 2 * Math.PI;
 
         // path controller gains
-        public double axialGain = 9.0;
-        public double lateralGain = 5.0;
+        public double axialGain = 8.0;
+        public double lateralGain = 4.0;
         public double headingGain = 6; // shared with turn
 
         public double axialVelGain = 0.0;
@@ -112,7 +112,7 @@ public class MecanumDrive {
 
     public final VoltageSensor voltageSensor;
 
-    public final LazyImu lazyImu;
+    public LazyImu lazyImu;
 
     public final Localizer localizer;
     public Pose2d pose;
@@ -133,10 +133,10 @@ public class MecanumDrive {
         private boolean initialized;
 
         public DriveLocalizer() {
-            leftFront = new OverflowEncoder(new RawEncoder(MecanumDrive.this.leftFront));
-            leftBack = new OverflowEncoder(new RawEncoder(MecanumDrive.this.leftBack));
-            rightBack = new OverflowEncoder(new RawEncoder(MecanumDrive.this.rightBack));
-            rightFront = new OverflowEncoder(new RawEncoder(MecanumDrive.this.rightFront));
+            leftFront = new OverflowEncoder(new RawEncoder(RRMecanumDrive.this.leftFront));
+            leftBack = new OverflowEncoder(new RawEncoder(RRMecanumDrive.this.leftBack));
+            rightBack = new OverflowEncoder(new RawEncoder(RRMecanumDrive.this.rightBack));
+            rightFront = new OverflowEncoder(new RawEncoder(RRMecanumDrive.this.rightFront));
 
             imu = lazyImu.get();
 
@@ -208,7 +208,7 @@ public class MecanumDrive {
         }
     }
 
-    public MecanumDrive(HardwareMap hardwareMap, Pose2d pose) {
+    public RRMecanumDrive(HardwareMap hardwareMap, Pose2d pose) {
         this.pose = pose;
 
         LynxFirmware.throwIfModulesAreOutdated(hardwareMap);
@@ -217,18 +217,18 @@ public class MecanumDrive {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        leftFront = hardwareMap.get(DcMotorEx.class, "backLeft");
-        leftBack = hardwareMap.get(DcMotorEx.class, "frontLeft");
-        rightBack = hardwareMap.get(DcMotorEx.class, "frontRight");
-        rightFront = hardwareMap.get(DcMotorEx.class, "backRight");
+        leftFront = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        leftBack = hardwareMap.get(DcMotorEx.class, "backLeft");
+        rightBack = hardwareMap.get(DcMotorEx.class, "backRight");
+        rightFront = hardwareMap.get(DcMotorEx.class, "frontRight");
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
         lazyImu = new LazyImu(hardwareMap, "imu", new RevHubOrientationOnRobot(
                 PARAMS.logoFacingDirection, PARAMS.usbFacingDirection));

@@ -17,6 +17,7 @@ public class LiftTuner extends OpMode {
     @Override
     public void init() {
         lift = new Lift(hardwareMap, false);
+        lift.setRunMode(Lift.Mode.hang);
     }
 
     @Override

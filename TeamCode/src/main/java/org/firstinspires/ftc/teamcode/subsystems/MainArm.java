@@ -26,7 +26,7 @@ public class MainArm {
 
     boolean flag = false;
 
-    public static double vertAngle = 90, backUpAngle = 90, specimen = 19, hangle = 63, silly = 90;
+    public static double vertAngle = 90, backUpAngle = 90, specimen = 19, hangle = 45, silly = 90;
 
     public MainArm(HardwareMap hardwareMap, boolean manual) {
         pivot = new MPPivot(hardwareMap); lift = new Lift(hardwareMap, manual);

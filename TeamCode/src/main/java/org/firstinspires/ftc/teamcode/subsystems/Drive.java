@@ -18,7 +18,7 @@ public class Drive {
 
     private double mult = 0.8;
 
-    public static DcMotor.ZeroPowerBehavior zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT;
+    public static DcMotor.ZeroPowerBehavior zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE;
 
     public Drive(HardwareMap hardwareMap) {
         fl = hardwareMap.dcMotor.get("backLeft");
@@ -31,17 +31,17 @@ public class Drive {
         fr .setZeroPowerBehavior(zeroPowerBehavior);
         br.setZeroPowerBehavior(zeroPowerBehavior);
 
-        fr.setDirection(DcMotorSimple.Direction.REVERSE);
-        br.setDirection(DcMotorSimple.Direction.REVERSE);
+        fl.setDirection(DcMotorSimple.Direction.REVERSE);
+        bl.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     private VoltageSensor voltageSensor; private boolean compEnabled = false;
 
     public Drive(HardwareMap hardwareMap, VoltageSensor voltageSensor) {
-        fl = hardwareMap.dcMotor.get("backLeft");
-        bl = hardwareMap.dcMotor.get("frontLeft");
-        fr = hardwareMap.dcMotor.get("backRight");
-        br = hardwareMap.dcMotor.get("frontRight");
+        fl = hardwareMap.dcMotor.get("frontLeft");
+        bl = hardwareMap.dcMotor.get("backLeft");
+        fr = hardwareMap.dcMotor.get("frontRight");
+        br = hardwareMap.dcMotor.get("backRight");
 
         fl.setZeroPowerBehavior(zeroPowerBehavior);
         bl.setZeroPowerBehavior(zeroPowerBehavior);
@@ -59,7 +59,11 @@ public class Drive {
     }
 
     public void setXYZ(double x, double y, double z) {
-        gpx =x; gpy = -y; gpz = z;
+        gpx =x; gpy = y; gpz = z;
+    }
+
+    public void setInputs(double x, double y, double z) {
+        this.x = x; this.y = y; this.z = z;
     }
 
     public void update() {
@@ -76,6 +80,11 @@ public class Drive {
         x = -gpx; y = gpy; z = gpz;
         d = Math.max(abs(x) + abs(y) + abs(z), 1);
         smp(x * mult, y * mult, z * mult);
+    }
+
+    public void updateAuto(double heading, double x, double y, double z) {
+        d = Math.max(abs(x) + abs(y) + abs(z), 1);
+        applyGlobalPowers(heading, x, y, z, d);
     }
 
     public double getMultiplier() {
@@ -99,6 +108,21 @@ public class Drive {
             fr.setPower((y - x + z)/d);
             br.setPower((y + x + z)/d);
         }
+    }
+
+    public void applyGlobalPowers(double heading, double x, double y, double z, double d) {
+        double comp = Robot.universalVoltage/voltageSensor.getVoltage();
+
+        x = -x; y = y; z = -z;
+
+        double xr = x * Math.cos(heading) - y * Math.sin(heading);
+        double yr = x * Math.sin(heading) + y * Math.cos(heading);
+
+        d = Math.max(abs(x) + abs(y) + abs(z), 1);
+        fl.setPower(((xr+yr-z)/d) * comp);
+        bl.setPower(((xr-yr-z)/d) * comp);
+        fr.setPower(((xr-yr+z)/d) * comp);
+        br.setPower(((xr+yr+z)/d) * comp);
     }
 
 }

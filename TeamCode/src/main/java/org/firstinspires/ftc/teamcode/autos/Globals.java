@@ -14,4 +14,7 @@ public class Globals {
 
    public static double basketExtension = 2592;
 
+   public static double yPodOffet = -140.5;
+   public static double xPodOffset = 98.5;
+
 }

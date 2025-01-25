@@ -7,13 +7,15 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.rr.Drawing;
-import org.firstinspires.ftc.teamcode.rr.SparkFunOTOSDrive;
+import org.firstinspires.ftc.teamcode.rr.SparkFunOTOSDriveRR;
 @TeleOp
 @Config
+@Disabled
 public class LocalizationTest extends LinearOpMode {
 
     public static double sx, sy, sz;
@@ -22,7 +24,7 @@ public class LocalizationTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        SparkFunOTOSDrive drive = new SparkFunOTOSDrive(hardwareMap, new Pose2d(0, 0, 0));
+        SparkFunOTOSDriveRR drive = new SparkFunOTOSDriveRR(hardwareMap, new Pose2d(0, 0, 0));
 
         waitForStart();
 

@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.subsystems.MPPivot;
 @Config
 public class PickAndFlipCommand extends SequentialCommandGroup {
 
-    public static double specHeight = 910;
+    public static double specHeight = 180;
 
     public PickAndFlipCommand(Deposit deposit, Lift lift, MPPivot pivot)
     {
@@ -24,9 +24,11 @@ public class PickAndFlipCommand extends SequentialCommandGroup {
                 new LiftLimitCommand(lift, false),
                 new LiftCommand(lift, 0),
                 new ArmCommand(deposit, ArmCommand.DepositState.specIntake, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal),
-                new WaitCommand(100),
                 new ParallelCommandGroup(
-                        new ArmCommand(deposit, ArmCommand.DepositState.specDepo, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal),
+                        new SequentialCommandGroup(
+                                new WaitCommand(200),
+                                new ArmCommand(deposit, ArmCommand.DepositState.specDepo, ArmCommand.ClawState.closed, ArmCommand.WristState.wrapped)
+                        ),
                         new PivotCommand(pivot,  90)
                 ),
                 new LiftLimitCommand(lift, true),

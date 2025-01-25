@@ -17,7 +17,10 @@ public class ArmCommand extends CommandBase {
         basketDepo,
         specDepo,
         specSlam,
-        floorSpec
+        floorSpec,
+        shoot,
+        dropSlam,
+        wallSpecUp
     }
 
     public enum ClawState {
@@ -28,7 +31,9 @@ public class ArmCommand extends CommandBase {
     public enum WristState {
         horizontal,
         vertical,
-        wrapped
+        wrapped,
+        diagonal,
+        diagonal2
     }
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -51,8 +56,8 @@ public class ArmCommand extends CommandBase {
                 pitch = Deposit.aPitchBack;
                 break;
             case specIntake:
-                arm = Deposit.armSpec;
-                pitch = Deposit.aPitchSpec;
+                arm = 0.45;
+                pitch = 0.34;
                 break;
             case specDepo:
                 arm = Deposit.armDown;
@@ -70,6 +75,17 @@ public class ArmCommand extends CommandBase {
                 arm = floorSpecArm;
                 pitch = floorSpecPitch;
                 break;
+            case shoot:
+                arm = 0.48;
+                pitch = 0.58;
+                break;
+            case dropSlam:
+                arm = Deposit.slamPos;
+                pitch = Deposit.slamOnPitch;
+                break;
+            case wallSpecUp:
+                arm = 0.45;
+                pitch = 0.8;
         }
 
         switch (clawState) {
@@ -90,6 +106,12 @@ public class ArmCommand extends CommandBase {
                 break;
             case horizontal:
                 wrist = 0;
+                break;
+            case diagonal:
+                wrist = 0.25;
+                break;
+            case diagonal2:
+                wrist = 0.7;
                 break;
         }
     }

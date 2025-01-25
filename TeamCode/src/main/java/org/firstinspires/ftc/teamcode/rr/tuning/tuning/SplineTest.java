@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.rr.SparkFunOTOSDrive;
+import org.firstinspires.ftc.teamcode.rr.SparkFunOTOSDriveRR;
 import org.firstinspires.ftc.teamcode.rr.TankDrive;
 
 @TeleOp
@@ -17,8 +17,8 @@ public final class SplineTest extends LinearOpMode {
     @Override
     public void runOpMode() {
         Pose2d beginPose = new Pose2d(0, 0, 0);
-        if (TuningOpModes.DRIVE_CLASS.equals(SparkFunOTOSDrive.class)) {
-            SparkFunOTOSDrive drive = new SparkFunOTOSDrive(hardwareMap, beginPose);
+        if (TuningOpModes.DRIVE_CLASS.equals(SparkFunOTOSDriveRR.class)) {
+            SparkFunOTOSDriveRR drive = new SparkFunOTOSDriveRR(hardwareMap, beginPose);
 
             waitForStart();
 

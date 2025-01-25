@@ -5,18 +5,22 @@ package org.firstinspires.ftc.teamcode.rr;
 import static com.acmerobotics.roadrunner.ftc.OTOSKt.OTOSPoseToRRPose;
 import static com.acmerobotics.roadrunner.ftc.OTOSKt.RRPoseToOTOSPose;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.DownsampledWriter;
 import com.acmerobotics.roadrunner.ftc.FlightRecorder;
+import com.acmerobotics.roadrunner.ftc.LazyImu;
 import com.acmerobotics.roadrunner.ftc.SparkFunOTOSCorrected;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.rr.messages.PoseMessage;
-import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
+import org.firstinspires.ftc.teamcode.subsystems.RRMecanumDrive;
 
 /**
  * Experimental extension of MecanumDrive that uses the SparkFun OTOS sensor for localization.
@@ -25,7 +29,16 @@ import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
  * Portions of this code made and released under the MIT License by SparkFun
  * Unless otherwise noted, comments are from SparkFun
  */
-public class SparkFunOTOSDrive extends MecanumDrive {
+
+@Config
+public class SparkFunOTOSDriveRR extends RRMecanumDrive {
+
+    public static double OTOSHeading = 0;
+
+    public LazyImu limu;
+
+    public IMU imu;
+
     public static class Params {
         // Assuming you've mounted your sensor to a robot and it's not centered,
         // you can specify the offset for the sensor relative to the center of the
@@ -40,7 +53,7 @@ public class SparkFunOTOSDrive extends MecanumDrive {
         // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
 
         // RR localizer note: These units are inches and radians.
-        public SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(-2.5, 0, Math.toRadians(90));
+        public SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(-2.5, 0, Math.toRadians(-90));
 
         // Here we can set the linear and angular scalars, which can compensate for
         // scaling issues with the sensor measurements. Note that as of firmware
@@ -58,8 +71,8 @@ public class SparkFunOTOSDrive extends MecanumDrive {
         // multiple speeds to get an average, then set the linear scalar to the
         // inverse of the error. For example, if you move the robot 100 inches and
         // the sensor reports 103 inches, set the linear scalar to 100/103 = 0.971
-        public double linearScalar = 0.98936841;
-        public double angularScalar = 1.0439;
+        public double linearScalar = 0.97602635;
+        public double angularScalar = 0.9378;
     }
 
     public static Params PARAMS = new Params();
@@ -70,7 +83,7 @@ public class SparkFunOTOSDrive extends MecanumDrive {
 
     private final DownsampledWriter estimatedPoseWriter = new DownsampledWriter("ESTIMATED_POSE", 50_000_000);
 
-    public SparkFunOTOSDrive(HardwareMap hardwareMap, Pose2d pose) {
+    public SparkFunOTOSDriveRR(HardwareMap hardwareMap, Pose2d pose) {
         super(hardwareMap, pose);
         FlightRecorder.write("OTOS_PARAMS",PARAMS);
         otos = hardwareMap.get(SparkFunOTOSCorrected.class,"sensor_otos");
@@ -88,6 +101,7 @@ public class SparkFunOTOSDrive extends MecanumDrive {
         otos.resetTracking();
 
         otos.setPosition(RRPoseToOTOSPose(pose));
+
         // The IMU on the OTOS includes a gyroscope and accelerometer, which could
         // have an offset. Note that as of firmware version 1.0, the calibration
         // will be lost after a power cycle; the OTOS performs a quick calibration
@@ -107,6 +121,9 @@ public class SparkFunOTOSDrive extends MecanumDrive {
         // In the future I hope to do that by default and just add a check in updatePoseEstimate for it
         otos.calibrateImu(255, true);
     }
+
+    private double heading, lastHeading;
+
     @Override
     public PoseVelocity2d updatePoseEstimate() {
         if (lastOtosPose != pose) {

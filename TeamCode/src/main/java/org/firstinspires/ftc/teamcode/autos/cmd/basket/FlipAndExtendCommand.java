@@ -15,13 +15,13 @@ public class FlipAndExtendCommand extends SequentialCommandGroup {
     public FlipAndExtendCommand(Deposit deposit, Lift lift, MPPivot pivot)
     {
         addCommands(
+                new ArmCommand(deposit, ArmCommand.DepositState.basketDepo, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal),
                 new LiftLimitCommand(lift, true),
                 new LiftCommand(lift, 0),
-                new PivotCommand(pivot, 90),
+                new PivotCommand(pivot, 86),
                 new ArmCommand(deposit, ArmCommand.DepositState.floorIntake, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal),
                 new SequentialCommandGroup(
-                        new LiftCommand(lift, 2400),
-                        new ArmCommand(deposit, ArmCommand.DepositState.basketDepo, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal))
+                        new LiftCommand(lift, 2280))
         );
     }
 

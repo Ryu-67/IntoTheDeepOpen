@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.tuners;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.ftc.SparkFunOTOSCorrected;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -25,12 +26,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Disabled
 public class SparkfunTuner extends LinearOpMode {
     // Create an instance of the sensor
-    SparkFunOTOS myOtos;
+    SparkFunOTOSCorrected myOtos;
 
     @Override
     public void runOpMode() throws InterruptedException {
         // Get a reference to the sensor
-        myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
+        myOtos = hardwareMap.get(SparkFunOTOSCorrected.class, "sensor_otos");
 
         // All the configuration for the OTOS is done in this helper method, check it out!
         configureOtos();
@@ -57,6 +58,13 @@ public class SparkfunTuner extends LinearOpMode {
             // Inform user of available controls
             telemetry.addLine("Press Y (triangle) on Gamepad to reset tracking");
             telemetry.addLine("Press X (square) on Gamepad to calibrate the IMU");
+            telemetry.addLine();
+
+            telemetry.addData("errorLSM", myOtos.getStatus().errorLsm);
+            telemetry.addData("errorPAA", myOtos.getStatus().errorPaa);
+            telemetry.addData("warnTiltAngle", myOtos.getStatus().warnTiltAngle);
+            telemetry.addData("warnOpticalTracking", myOtos.getStatus().warnOpticalTracking);
+
             telemetry.addLine();
 
             // Log the position to the telemetry
@@ -94,7 +102,7 @@ public class SparkfunTuner extends LinearOpMode {
         // clockwise (negative rotation) from the robot's orientation, the offset
         // would be {-5, 10, -90}. These can be any value, even the angle can be
         // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
-        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(2.5, 0, 90);
+        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(-2.5, 0, Math.toRadians(-90));
         myOtos.setOffset(offset);
 
         // Here we can set the linear and angular scalars, which can compensate for

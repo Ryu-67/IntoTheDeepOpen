@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
+
 
 @Config
 public class Robot {
@@ -12,16 +14,20 @@ public class Robot {
     public VoltageSensor voltageSensor;
     public static double universalVoltage = 12.8;
 
-    private boolean enableDrive = false;
+    private boolean enableDrive = false, isTele = false;
 
     public Robot(HardwareMap hardwareMap, boolean isTele, boolean specimen, boolean enableDrive) {
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
 
         if (enableDrive) {
-            drive = new Drive(hardwareMap, voltageSensor);
-            this.enableDrive = enableDrive;
+            if (isTele) {
+                drive = new Drive(hardwareMap, voltageSensor);
+            }
         }
+        this.enableDrive = enableDrive;
+        this.isTele = isTele;
+
         this.lift = new Lift(hardwareMap, isTele, voltageSensor);
         this.pivot = new MPPivot(hardwareMap, voltageSensor);
         this.deposit = new Deposit(hardwareMap, specimen);
@@ -29,7 +35,9 @@ public class Robot {
 
     public void update() {
         if (enableDrive) {
-            drive.update();
+            if (isTele) {
+                drive.update();
+            }
         }
         lift.update();
         pivot.update();
@@ -37,7 +45,9 @@ public class Robot {
 
     public void update(boolean f1, boolean f2) {
         if (enableDrive) {
-            drive.update();
+            if (isTele) {
+                drive.update();
+            }
         }
         lift.update();
         pivot.update();
