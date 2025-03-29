@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.rr.Utils;
 
 @Config
 public class MPPivot {
@@ -21,7 +20,7 @@ public class MPPivot {
 
     private PIDController controller = new PIDController(p, i, d);
     private TrapezoidProfile profile;
-    TrapezoidProfile.Constraints upConstraints = new TrapezoidProfile.Constraints(2*Math.PI, 10*Math.PI), downConstraints = new TrapezoidProfile.Constraints(1.5*Math.PI, 4*Math.PI);
+    TrapezoidProfile.Constraints upConstraints = new TrapezoidProfile.Constraints(3*Math.PI, 20*Math.PI), downConstraints = new TrapezoidProfile.Constraints(5*Math.PI, 3*Math.PI);
     public static double p = 3.5, i = 0, d = 0.05, k = 0.1;
 
     public double tpr = (537.7*(2.66666666666666667)*(2))/(2*Math.PI);
@@ -49,8 +48,8 @@ public class MPPivot {
 
         rPivot.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        lPivot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rPivot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        lPivot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rPivot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         lPivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rPivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -112,9 +111,9 @@ public class MPPivot {
 
         power = controller.calculate(angle) + (k * Math.cos(targetAngle));
 
-        if (flag && Utils.valInThresh(0, lastPower, 0) && targetAngle == 0) {
+        if (flag && targetAngle == 0) {
             apply(0);
-        } else if (Utils.valInThresh(power, lastPower, 0.05)) {
+        } else  {
             apply(power);
             lastPower = power;
         }
@@ -124,6 +123,10 @@ public class MPPivot {
         aVelocity = (angle-langle)/velTimer.seconds();
         langle = angle;
         velTimer.reset();
+    }
+
+    public double readRawMotorTicks() {
+        return rPivot.getCurrentPosition();
     }
 
     public void apply(double p) {

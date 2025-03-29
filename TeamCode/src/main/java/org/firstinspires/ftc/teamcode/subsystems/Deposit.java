@@ -11,13 +11,14 @@ public class Deposit {
     private Servo lArm, pitch, wrist;
     private Claw claw;
 
-    public static double vert = 0.48, hori = 0, wrapped = 0.95, diag = 0.48/2;
+    public static double vert = 0.48, hori = 0.03, wrapped = 0.98, diag = 0.48/2;
 
     private boolean ispressed = false, spec = false;
 
-    public static double aPitchUp=0.385, aPitchDown = 0.38, aPitchBack = 0, aPitchSpec = 0.75, specSlamPitch = 0.8, slamOnPitch = 0.3;
+    public static double aPitchUp=0.47, aPitchDown = 0.84, aPitchBack = 0.12
+            , aPitchSpec = 0.44, specSlamPitch = 0.6, slamOnPitch = 0.45;
 
-    public static double armDown = 0.4, armUp = 0.29, armBack = 0.23, armSpec = 0.55, specSlam = 0.35, slamPos = 0.13;
+    public static double armDown = 0.4, armUp = 0.3, armBack = 0.24, armSpec = 0.48, specSlam = 0.4, slamPos = 0.15;
 
     public Deposit(HardwareMap hardwareMap) {
         lArm = hardwareMap.servo.get("arm");
@@ -78,20 +79,15 @@ public class Deposit {
         if (incr != lincr) {
             if (incr == 1) {
                     if (spec) {
-                        setArm(0.45);
-                        pitch.setPosition(0.34);
+                        setArm(armSpec);
+                        pitch.setPosition(aPitchSpec);
                     } else {
                         setArm(armUp);
                         pitch.setPosition(aPitchUp);
                     }
             } else if (incr == 0) {
-                if (!spec) {
                     setArm(armDown);
                     pitch.setPosition(aPitchDown);
-                } else {
-                    setArm(armSpec);
-                    pitch.setPosition(aPitchSpec);
-                }
             } else {
                 setArm(armBack);
                 pitch.setPosition(aPitchBack);

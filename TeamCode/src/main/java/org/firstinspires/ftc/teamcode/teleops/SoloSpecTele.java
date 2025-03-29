@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.autos.cmd.spec.GoToSlamTeleCommand;
 import org.firstinspires.ftc.teamcode.autos.cmd.spec.UnSlamTeleCommand;
 import org.firstinspires.ftc.teamcode.subsystems.Deposit;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
-import org.firstinspires.ftc.teamcode.subsystems.DriveFC;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.MPPivot;
 import org.firstinspires.ftc.teamcode.subsystems.MainArm;

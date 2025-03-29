@@ -20,7 +20,10 @@ public class ArmCommand extends CommandBase {
         floorSpec,
         shoot,
         dropSlam,
-        wallSpecUp
+        wallSpecUp,
+        wallSpecTele,
+        hell,
+        antiSlamDunkTechnology
     }
 
     public enum ClawState {
@@ -56,8 +59,9 @@ public class ArmCommand extends CommandBase {
                 pitch = Deposit.aPitchBack;
                 break;
             case specIntake:
-                arm = 0.45;
-                pitch = 0.34;
+            case wallSpecTele:
+                arm = Deposit.armSpec;
+                pitch = Deposit.aPitchSpec;
                 break;
             case specDepo:
                 arm = Deposit.armDown;
@@ -66,6 +70,10 @@ public class ArmCommand extends CommandBase {
             case basketDepo:
                 arm = Deposit.armUp;
                 pitch = Deposit.aPitchUp;
+                break;
+            case antiSlamDunkTechnology:
+                arm = Deposit.armUp;
+                pitch = 0.55;
                 break;
             case specSlam:
                 arm = Deposit.specSlam;
@@ -84,8 +92,9 @@ public class ArmCommand extends CommandBase {
                 pitch = Deposit.slamOnPitch;
                 break;
             case wallSpecUp:
-                arm = 0.45;
-                pitch = 0.8;
+                arm = 0.805;
+                pitch = 0.625;
+                break;
         }
 
         switch (clawState) {

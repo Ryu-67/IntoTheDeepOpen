@@ -4,6 +4,7 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 
 import org.firstinspires.ftc.teamcode.autos.cmd.base.ArmCommand;
+import org.firstinspires.ftc.teamcode.autos.cmd.base.ConfigArmCommand;
 import org.firstinspires.ftc.teamcode.autos.cmd.base.LiftCommand;
 import org.firstinspires.ftc.teamcode.subsystems.Deposit;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;

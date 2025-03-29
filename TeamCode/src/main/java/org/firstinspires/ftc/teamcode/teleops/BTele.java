@@ -24,7 +24,7 @@ public class BTele extends OpMode {
 
     public CommandScheduler actionQueue = CommandScheduler.getInstance();
 
-    boolean ip2 = false, isPr2 = false, irp = false, wasLastPick = false;
+    boolean ip2 = false, isPr2 = false, irp = false, wasLastPick = false, ih = false, hang = false;
 
     @Override
     public void init() {
@@ -47,21 +47,26 @@ public class BTele extends OpMode {
         deposit.process(gamepad2.dpad_up, gamepad2.dpad_down);
         lift.setManualInput(gamepad2.left_stick_x);
 
-        if (!ip2 && gamepad2.b) {
-            pivot.setTargetAngle(0);
-            lift.setLimit(false);
+        if (!ip2 && gamepad2.x) {
+            pivot.setTargetAngle(92);
         } else if (!ip2 && gamepad2.y) {
             pivot.setTargetAngle(MainArm.hangle);
-            lift.setLimit(true);
-        } else if (!ip2 && gamepad2.x) {
-            pivot.setTargetAngle(92);
-            lift.setLimit(true);
+        } else if (!ip2 && gamepad2.b) {
+            pivot.setTargetAngle(0);
+        } else if (!ip2 && gamepad2.a) {
+            pivot.setTargetAngle(95);
+        } else if (!ip2 && gamepad2.left_stick_button) {
+            pivot.setTargetAngle(30);
         }
-        ip2 = gamepad2.b || gamepad2.y || gamepad2.x;
+        ip2 = gamepad2.b || gamepad2.x || gamepad2.y || gamepad2.a || gamepad2.left_stick_button;
 
         pivot.setTargetAngle(Math.toDegrees(pivot.targetAngle) - gamepad2.right_stick_y);
 
         actionQueue.run();
+
+        if (gamepad1.dpad_up && !wasLastPick) {
+            Deposit.armBack += 0.02;
+        } wasLastPick = gamepad1.dpad_up;
 
         drive.update();
         lift.update();
@@ -79,10 +84,10 @@ public class BTele extends OpMode {
         isPr2 = gamepad2.dpad_left || gamepad2.a;
 
         if (gamepad2.dpad_right && !irp) {
-            if (lift.ticks > 500) {
+            if (lift.ticks > 250) {
                 lift.setTarget(0);
             } else {
-                lift.setTarget(2280);
+                lift.setTarget(873);
             }
         } irp = gamepad2.dpad_right;
 

@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.teleops;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.autos.cmd.spec.EnterSpecState;
+import org.firstinspires.ftc.teamcode.autos.cmd.spec.LchampsSlamTeleCommand;
+import org.firstinspires.ftc.teamcode.autos.cmd.spec.LchampsUnslamTeleCommand;
 import org.firstinspires.ftc.teamcode.autos.cmd.spec.PUTTHESPECDOWNCommand;
 import org.firstinspires.ftc.teamcode.autos.cmd.spec.PickAndFlipCommand;
 import org.firstinspires.ftc.teamcode.subsystems.Deposit;
@@ -14,14 +16,11 @@ import org.firstinspires.ftc.teamcode.subsystems.MPPivot;
 import org.firstinspires.ftc.teamcode.subsystems.MainArm;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
-@TeleOp(name = "l3 Hang Tester")
-@Config
-public class Tele1 extends OpMode {
+@TeleOp(name = "Specimen Tele")
+public class SpecTele extends OpMode {
 
     public Drive drive; public MPPivot pivot; public Deposit deposit; public Lift lift;
     public Robot robot;
-
-    public static double hangP = 0.026, l3Angle = 30;
 
     CommandScheduler actionQueue = CommandScheduler.getInstance();
 
@@ -40,7 +39,7 @@ public class Tele1 extends OpMode {
         actionQueue = CommandScheduler.getInstance();
     }
 
-    boolean hang = false; boolean irp = false, ip2 = false, ip3 = false, g = false, isPr = false, ih = false, hangOn = false;
+    boolean hang = false; boolean irp = false, ip2 = false, ip3 = false, g = false, isPr = false, ih = false, hangOn = false, armAdjust = false;
     double m = 1;
 
     Lift.Mode liftMode = Lift.Mode.manual;
@@ -69,47 +68,54 @@ public class Tele1 extends OpMode {
         } else if (!ip2 && gamepad2.b) {
             pivot.setTargetAngle(0);
         } else if (!ip2 && gamepad2.a) {
-            pivot.setTargetAngle(100);
+            pivot.setTargetAngle(95);
         } else if (!ip2 && gamepad2.left_stick_button) {
-            pivot.setTargetAngle(l3Angle);
+            pivot.setTargetAngle(30);
         }
-        ip2 = gamepad2.b || gamepad2.x || gamepad2.y || gamepad2.a || gamepad2.left_stick_button;
+        ip2 = gamepad2.b || gamepad2.a || gamepad2.x || gamepad2.y;
         deposit.process(gamepad2.dpad_up, gamepad2.dpad_down);
-
-        if (gamepad2.right_stick_button && !ih) {
-            if (!hang) {
-                lift.setPID(hangP);
-                hang = true;
-            } else {
-                lift.setPID(0.009);
-                hang = false;
-            }
-        } ih = gamepad2.right_stick_button;
-
-        telemetry.addData("is hang PID enabled?", hang);
-
-        if (Math.toDegrees(pivot.targetAngle) - gamepad2.right_stick_y != Math.toDegrees(pivot.targetAngle)) {
-            pivot.setTargetAngle(Math.toDegrees(pivot.targetAngle) - gamepad2.right_stick_y);
-        }
 
         robot.update(gamepad2.left_bumper, gamepad2.right_bumper);
         actionQueue.run();
 
-        if (gamepad2.dpad_left && !isPr && pivot.angle < Math.toRadians(60)) {
+        if (gamepad1.dpad_up && !armAdjust) {
+            Deposit.aPitchSpec += 0.1;
+            Deposit.aPitchDown += 0.1;
+            Deposit.aPitchBack += 0.1;
+        } else if (gamepad1.dpad_down && !armAdjust) {
+            Deposit.aPitchSpec -= 0.1;
+            Deposit.aPitchDown -= 0.1;
+            Deposit.aPitchBack -= 0.1;
+        } armAdjust = gamepad1.dpad_down || gamepad1.dpad_up;
+
+        pivot.setTargetAngle(Math.toDegrees(pivot.targetAngle) - gamepad2.right_stick_y);
+
+        if (gamepad2.right_stick_button && !ih) {
+            if (hangOn) {
+                lift.setPID(0.009);
+                hangOn = false;
+            } else {
+                lift.setPID(0.025);
+                hangOn = true;
+            }
+        } ih = gamepad2.right_stick_button;
+
+        if (gamepad2.dpad_left && !isPr && pivot.angle < Math.toRadians(70)) {
             actionQueue.reset();
             actionQueue = CommandScheduler.getInstance();
             actionQueue.schedule(new PickAndFlipCommand(deposit, lift, pivot));
-        } else if (gamepad2.dpad_left && !isPr && pivot.angle > Math.toRadians(60)){
+        } else if (gamepad2.dpad_left && !isPr && pivot.angle > Math.toRadians(70)){
             actionQueue.reset();
             actionQueue = CommandScheduler.getInstance();
             actionQueue.schedule(new PUTTHESPECDOWNCommand(deposit, lift, pivot));
-        } isPr = gamepad2.dpad_left;
+        }
+        isPr = gamepad2.dpad_left;
 
         if (gamepad2.dpad_right && !irp) {
             if (lift.ticks > 500) {
                 lift.setTarget(0);
             } else {
-                lift.setTarget(Lift.l2);
+                lift.setTarget(Lift.limit);
             }
         } irp = gamepad2.dpad_right;
 
@@ -121,4 +127,3 @@ public class Tele1 extends OpMode {
         telemetry.update();
     }
 }
-

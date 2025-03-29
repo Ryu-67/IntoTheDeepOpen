@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.teamcode.rr.Utils;
 
 @Config
 public class Lift {
@@ -22,7 +21,7 @@ public class Lift {
 
     public double target = 0, power, ticks, lastPower, lastTarget = target, velocity = 0, indexedPosition = 0;
 
-    public static double p = 0.009, i, d=0, f = 0.03;
+    public static double p = 0.01, i, d=0, f = 0;
 
     public static double hp = 0.1, hi, hd, hf;
     public PIDController controller = new PIDController(p, i, d);
@@ -81,7 +80,7 @@ public class Lift {
 
         reset = hardwareMap.get(RevTouchSensor.class, "lReset");
 
-        controller.setTolerance(35);
+        controller.setTolerance(10);
 
         if (manual) {
             runMode = Mode.manual;
@@ -92,6 +91,10 @@ public class Lift {
         this.voltageSensor = voltageSensor; compEnabled = true;
 
         profile = new TrapezoidProfile(liftConstraints, new TrapezoidProfile.State(0,0));
+    }
+
+    public void setPIDTolerance(double tol) {
+        controller.setTolerance(tol);
     }
 
     public double readTicks(double ticks) {
@@ -116,7 +119,7 @@ public class Lift {
         mInput = input;
     }
 
-    public static double l1 = 2280, l2 = 1260, limit = l2;
+    public static double l1 = 867, l2 = 480, limit = l2;
 
     public void setLimit(boolean vertical) {
         if (vertical) {
@@ -171,7 +174,7 @@ public class Lift {
         if (target == 0 && reset.isPressed()) {
             power = 0;
             apply(power);
-        } else if (Utils.valInThresh(power, lastPower, 0.05)) {
+        } else {
             apply(power);
             lastPower = power;
         }

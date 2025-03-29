@@ -20,7 +20,8 @@ public class ConfigArmCommand extends CommandBase {
         specDepo,
         specSlam,
         floorSpec,
-        shoot
+        shoot,
+        antiSlamDunkTechnology
     }
 
     public enum ClawState {
@@ -68,9 +69,13 @@ public class ConfigArmCommand extends CommandBase {
                 arm = Deposit.armUp;
                 pitch = Deposit.aPitchUp;
                 break;
+            case antiSlamDunkTechnology:
+                arm = Deposit.armUp;
+                pitch = 0.55;
+                break;
             case specSlam:
-                arm = Deposit.specSlam;
-                pitch = Deposit.specSlamPitch;
+                arm = 0;
+                pitch = 0.2;
                 break;
             case floorSpec:
                 arm = floorSpecArm;
