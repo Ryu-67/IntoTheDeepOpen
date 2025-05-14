@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.autos.cmd.base;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.CommandBase;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.Claw;
 import org.firstinspires.ftc.teamcode.subsystems.Deposit;
 
+@Config
 public class ArmCommand extends CommandBase {
 
     private Deposit deposit;
@@ -23,7 +25,8 @@ public class ArmCommand extends CommandBase {
         wallSpecUp,
         wallSpecTele,
         hell,
-        antiSlamDunkTechnology
+        antiSlamDunkTechnology,
+        preIntakeLifted
     }
 
     public enum ClawState {
@@ -36,7 +39,8 @@ public class ArmCommand extends CommandBase {
         vertical,
         wrapped,
         diagonal,
-        diagonal2
+        diagonal2,
+        current
     }
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -95,6 +99,9 @@ public class ArmCommand extends CommandBase {
                 arm = 0.805;
                 pitch = 0.625;
                 break;
+            case preIntakeLifted:
+                arm = 0.24;
+                pitch = 0.075;
         }
 
         switch (clawState) {
@@ -120,14 +127,20 @@ public class ArmCommand extends CommandBase {
                 wrist = 0.25;
                 break;
             case diagonal2:
-                wrist = 0.7;
+                wrist = 0.8;
+                break;
+            case current:
                 break;
         }
     }
 
     @Override
     public void execute() {
-        deposit.setDeposit(wrist, pitch, arm, claw);
+        if (wristState != WristState.current) {
+            deposit.setDeposit(wrist, pitch, arm, claw);
+        } else {
+            deposit.setDeposit(wrist, pitch, arm, deposit.wristP());
+        }
     }
 
     @Override

@@ -29,25 +29,25 @@ import java.util.concurrent.TimeUnit;
 
 @Config
 public class CameraSensor extends SubsystemBase {
-    public static Scalar minimumRed1 = new Scalar(0, 70, 50);
-    public static Scalar maximumRed1 = new Scalar(12, 255, 255);
+    public static Scalar minimumRed1 = new Scalar(0, 0, 0);
+    public static Scalar maximumRed1 = new Scalar(12, 0, 0);
 
-    public static Scalar minimumRed2 = new Scalar(168, 70, 50);
-    public static Scalar maximumRed2 = new Scalar(180, 255, 255);
+    public static Scalar minimumRed2 = new Scalar(0, 0, 0);
+    public static Scalar maximumRed2 = new Scalar(0, 0, 0);
 
-    public static Scalar minimumBlue = new Scalar(100, 100, 50);
-    public static Scalar maximumBlue = new Scalar(140, 255, 255);
+    public static Scalar minimumBlue = new Scalar(0, 0, 0);
+    public static Scalar maximumBlue = new Scalar(0, 0, 0);
 
-    public static Scalar minimumYellow = new Scalar(13, 50, 70);
-    public static Scalar maximumYellow = new Scalar(50, 150, 150);
+    public static Scalar minimumYellow = new Scalar(5, 90, 90);
+    public static Scalar maximumYellow = new Scalar(50, 180, 180);
 
     public static boolean useGlowUp = false;
 
-    public static int exposureMillis = 50;
-    public static int minContourArea = 550;
-    public static double alpha = 1; //gain scalar
+    public static int exposureMillis = 30;
+    public static int minContourArea = 880, maxCountourArea = 100000;
+    public static double alpha = 0.2; //gain scalar
     public static double beta = 0; //brightness offset
-    public static int contrast = 10; //default is 40
+    public static int contrast = 100; //default is 40
 
 
     SampleLocatorPipeline colorLocator;
@@ -128,7 +128,7 @@ public class CameraSensor extends SubsystemBase {
 
             List<ColorBlobLocatorProcessor.Blob> blobs = colorLocator.getBlobs();
 
-            ColorBlobLocatorProcessor.Util.filterByArea(minContourArea, 20000, blobs);
+            ColorBlobLocatorProcessor.Util.filterByArea(minContourArea, maxCountourArea, blobs);
             int dist = 10000;
             ColorBlobLocatorProcessor.Util.sortByArea(SortOrder.DESCENDING, blobs);
 

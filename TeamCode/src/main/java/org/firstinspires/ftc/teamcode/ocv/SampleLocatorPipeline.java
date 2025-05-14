@@ -67,10 +67,10 @@ public class SampleLocatorPipeline extends ColorBlobLocatorProcessor implements 
     public boolean onlyFirstColor = false;
 
     Point[] points = {
-            new Point(0,160),
-            new Point(0,480),
-            new Point(640,480),
-            new Point(640, 160),
+            new Point(0,80),
+            new Point(0,640),
+            new Point(640,640),
+            new Point(640, 80),
     };
 
 

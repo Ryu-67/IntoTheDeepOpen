@@ -21,7 +21,7 @@ public class Lift {
 
     public double target = 0, power, ticks, lastPower, lastTarget = target, velocity = 0, indexedPosition = 0;
 
-    public static double p = 0.01, i, d=0, f = 0;
+    public static double p = 0.016, i, d=0, f = 0.1;
 
     public static double hp = 0.1, hi, hd, hf;
     public PIDController controller = new PIDController(p, i, d);
@@ -80,7 +80,7 @@ public class Lift {
 
         reset = hardwareMap.get(RevTouchSensor.class, "lReset");
 
-        controller.setTolerance(10);
+        controller.setTolerance(5);
 
         if (manual) {
             runMode = Mode.manual;
@@ -119,7 +119,7 @@ public class Lift {
         mInput = input;
     }
 
-    public static double l1 = 867, l2 = 480, limit = l2;
+    public static double l1 = 871, l2 = 480, limit = l2;
 
     public void setLimit(boolean vertical) {
         if (vertical) {
@@ -142,6 +142,7 @@ public class Lift {
 
     public void update() {
         ticks = readTicks(Math.abs(lLift.getCurrentPosition()));
+        controller.setTolerance(5);
 
         if (runMode == Mode.manual) {
             target = target + (50 * mInput);
@@ -159,14 +160,8 @@ public class Lift {
                 } else if (target < 0) {
                     target = 0;
                 }
-                liftConstraints = new TrapezoidProfile.Constraints(vel, accel);
-                profile = new TrapezoidProfile(liftConstraints, new TrapezoidProfile.State(target, 0),
-                        new TrapezoidProfile.State(ticks, velocity));
-                fullTimer.reset();
+                controller.setSetPoint(target);
             }
-
-            indexedPosition = profile.calculate(fullTimer.seconds()).position;
-            controller.setSetPoint(indexedPosition);
         }
 
         power = controller.calculate(ticks);
@@ -175,7 +170,7 @@ public class Lift {
             power = 0;
             apply(power);
         } else {
-            apply(power);
+            apply(power + Math.signum(power) * f);
             lastPower = power;
         }
 

@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.autos.cmd.base.LiftCompletionCommand;
 import org.firstinspires.ftc.teamcode.autos.cmd.base.LiftLimitCommand;
 import org.firstinspires.ftc.teamcode.autos.cmd.base.PedroCommand;
 import org.firstinspires.ftc.teamcode.autos.cmd.base.PivotCommand;
+import org.firstinspires.ftc.teamcode.autos.cmd.base.PivotCompletionCommand;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.FollowerConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
@@ -76,8 +77,8 @@ public class PedroBasketAutoFREAKEdition extends LinearOpMode {
                 .addPath(
                         new BezierCurve(
                                 new Point(7.50, 113.000, Point.CARTESIAN),
-                                new Point(32.132, 114.843, Point.CARTESIAN),
-                                new Point(13, 132.250, Point.CARTESIAN)
+                                new Point(20, 120, Point.CARTESIAN),
+                                new Point(16, 130, Point.CARTESIAN)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-45))
                 .setPathEndVelocityConstraint(0)
@@ -86,14 +87,14 @@ public class PedroBasketAutoFREAKEdition extends LinearOpMode {
         pick1 = new PathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Point(13, 132.250, Point.CARTESIAN),
-                                new Point(28.7, 122, Point.CARTESIAN)
+                                new Point(16, 130, Point.CARTESIAN),
+                                new Point(25, 125, Point.CARTESIAN)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(-45), Math.toRadians(0))
-                .setPathEndTimeoutConstraint(600)
+                .setPathEndTimeoutConstraint(400)
                 .setPathEndTranslationalConstraint(0.2)
-                .setPathEndHeadingConstraint(Math.toRadians(3))
+                .setPathEndHeadingConstraint(Math.toRadians(0))
                 .setPathEndVelocityConstraint(0)
                 .build();
 
@@ -101,12 +102,12 @@ public class PedroBasketAutoFREAKEdition extends LinearOpMode {
                 .addPath(
                         // Line 3
                         new BezierLine(
-                                new Point(28.7, 122, Point.CARTESIAN),
-                                new Point(14, 132, Point.CARTESIAN)
+                                new Point(25, 125, Point.CARTESIAN),
+                                new Point(16, 130, Point.CARTESIAN)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-50))
-                .setPathEndTimeoutConstraint(0.95)
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-45))
+                .setPathEndTimeoutConstraint(400)
                 .setPathEndTranslationalConstraint(0.2)
                 .setPathEndHeadingConstraint(Math.toRadians(1))
                 .setPathEndVelocityConstraint(0)
@@ -116,11 +117,11 @@ public class PedroBasketAutoFREAKEdition extends LinearOpMode {
                 .addPath(
                         // Line 4
                         new BezierLine(
-                                new Point(14, 132, Point.CARTESIAN),
-                                new Point(28, 131.5, Point.CARTESIAN)
+                                new Point(16, 130, Point.CARTESIAN),
+                                new Point(25.7, 131, Point.CARTESIAN)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(-50), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(-45), Math.toRadians(0))
                 .setPathEndTimeoutConstraint(600)
                 .setPathEndTranslationalConstraint(0.2)
                 .setPathEndHeadingConstraint(Math.toRadians(3)).setPathEndVelocityConstraint(0)
@@ -129,11 +130,11 @@ public class PedroBasketAutoFREAKEdition extends LinearOpMode {
         drop2 = new PathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Point(28, 131.5, Point.CARTESIAN),
-                                new Point(14, 132.250, Point.CARTESIAN)
+                                new Point(25.7, 131, Point.CARTESIAN),
+                                new Point(16, 130, Point.CARTESIAN)
                         )
                 )
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-50))
+                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-45))
                 .setPathEndTimeoutConstraint(0.95)
                 .setPathEndTranslationalConstraint(0.2)
                 .setPathEndHeadingConstraint(Math.toRadians(1))
@@ -144,11 +145,11 @@ public class PedroBasketAutoFREAKEdition extends LinearOpMode {
                 .addPath(
                         // Line 6
                         new BezierLine(
-                                new Point(14, 135, Point.CARTESIAN),
-                                new Point(33, 130, Point.CARTESIAN)
+                                new Point(16, 130, Point.CARTESIAN),
+                                new Point(26, 130, Point.CARTESIAN)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(-50), Math.toRadians(47.5))
+                .setLinearHeadingInterpolation(Math.toRadians(-45), Math.toRadians(47.5))
                 .setPathEndTimeoutConstraint(0.95)
                 .setPathEndTranslationalConstraint(0.2)
                 .setPathEndHeadingConstraint(Math.toRadians(1))
@@ -159,8 +160,8 @@ public class PedroBasketAutoFREAKEdition extends LinearOpMode {
                 .addPath(
                         // Line 7
                         new BezierLine(
-                                new Point(33, 130, Point.CARTESIAN),
-                                new Point(14, 135, Point.CARTESIAN)
+                                new Point(26, 130, Point.CARTESIAN),
+                                new Point(16, 130, Point.CARTESIAN)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(47.5), Math.toRadians(-50))
@@ -174,8 +175,8 @@ public class PedroBasketAutoFREAKEdition extends LinearOpMode {
                 .addPath(
                         // Line 8
                         new BezierCurve(
-                                new Point(14, 135, Point.CARTESIAN),
-                                new Point(61.438, 130.612, Point.CARTESIAN),
+                                new Point(16, 130, Point.CARTESIAN),
+                                new Point(61.438, 120, Point.CARTESIAN),
                                 new Point(62.777, 99.074, Point.CARTESIAN)
                         )
                 )
@@ -206,14 +207,13 @@ public class PedroBasketAutoFREAKEdition extends LinearOpMode {
                                 new SequentialCommandGroup(
                                         new LiftLimitCommand(lift, true),
                                         new ParallelRaceGroup(
-                                                new LiftCommand(lift, 2280),
-                                                new WaitCommand(2000)
+                                                new LiftCommand(lift, 870),
+                                                new WaitCommand(800)
                                         )
-                                ),
-                                new ArmCommand(deposit, ArmCommand.DepositState.floorIntake, ArmCommand.ClawState.closed, ArmCommand.WristState.vertical)
+                                )
                         ),
-                        new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.antiSlamDunkTechnology, ConfigArmCommand.ClawState.closed, ConfigArmCommand.WristState.horizontal, 0.5),
-                        new ArmCommand(deposit, ArmCommand.DepositState.antiSlamDunkTechnology, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
+                        new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.antiSlamDunkTechnology, ConfigArmCommand.ClawState.closed, ConfigArmCommand.WristState.horizontal, 0.6),
+                        new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.antiSlamDunkTechnology, ConfigArmCommand.ClawState.open, ConfigArmCommand.WristState.horizontal, 0.3),
                         new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.floorIntake, ConfigArmCommand.ClawState.open, ConfigArmCommand.WristState.horizontal, 0.2),
                         new ParallelCommandGroup(
                                 new PedroCommand(follower, pick1),
@@ -226,16 +226,16 @@ public class PedroBasketAutoFREAKEdition extends LinearOpMode {
                         new ParallelCommandGroup(
                                 new PedroCommand(follower, drop1),
                                 new SequentialCommandGroup(
-                                        new PivotCommand(pivot, 90),
+                                        new PivotCompletionCommand(pivot, 90),
                                         new LiftLimitCommand(lift, true),
                                         new ParallelRaceGroup(
-                                                new LiftCommand(lift, 2280),
-                                                new WaitCommand(2000)
+                                                new LiftCommand(lift, 870),
+                                                new WaitCommand(800)
                                         )
                                 )
                         ),
-                        new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.antiSlamDunkTechnology, ConfigArmCommand.ClawState.closed, ConfigArmCommand.WristState.horizontal, 0.5),
-                        new ArmCommand(deposit, ArmCommand.DepositState.antiSlamDunkTechnology, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
+                        new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.antiSlamDunkTechnology, ConfigArmCommand.ClawState.closed, ConfigArmCommand.WristState.horizontal, 0.3),
+                        new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.antiSlamDunkTechnology, ConfigArmCommand.ClawState.open, ConfigArmCommand.WristState.horizontal, 0.2),
                         new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.floorIntake, ConfigArmCommand.ClawState.open, ConfigArmCommand.WristState.horizontal, 0.2),
                         new ParallelCommandGroup(
                                 new PedroCommand(follower, pick2),
@@ -251,23 +251,24 @@ public class PedroBasketAutoFREAKEdition extends LinearOpMode {
                                         new PivotCommand(pivot, 90),
                                         new LiftLimitCommand(lift, true),
                                         new ParallelRaceGroup(
-                                                new LiftCommand(lift, 2280),
-                                                new WaitCommand(2000)
+                                                new LiftCommand(lift, 860),
+                                                new WaitCommand(800)
                                         )
                                 )
                         ),
-                        new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.antiSlamDunkTechnology, ConfigArmCommand.ClawState.closed, ConfigArmCommand.WristState.horizontal, 0.5),
-                        new ArmCommand(deposit, ArmCommand.DepositState.antiSlamDunkTechnology, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
+                        new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.antiSlamDunkTechnology, ConfigArmCommand.ClawState.closed, ConfigArmCommand.WristState.horizontal, 0.3),
+                        new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.antiSlamDunkTechnology, ConfigArmCommand.ClawState.open, ConfigArmCommand.WristState.horizontal, 0.2),
                         new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.floorIntake, ConfigArmCommand.ClawState.open, ConfigArmCommand.WristState.diagonal2, 0.2),
                         new SequentialCommandGroup(
-                                new LiftCompletionCommand(lift, 0)
-                        ),
-                        new ParallelCommandGroup(
-                                new PivotCommand(pivot, 0),
-                                new SequentialCommandGroup(
-                                        new WaitCommand(600),
-                                        new PedroCommand(follower, pick3)
-                                )
+                                new ParallelRaceGroup(
+                                        new LiftCompletionCommand(lift, 0),
+                                        new WaitCommand(300)
+                                ),
+                                new ParallelRaceGroup(
+                                        new PivotCompletionCommand(pivot, 0),
+                                        new WaitCommand(200)
+                                ),
+                                new PedroCommand(follower, pick3)
                         ),
                         new ArmCommand(deposit, ArmCommand.DepositState.floorIntake, ArmCommand.ClawState.closed, ArmCommand.WristState.diagonal2),
                         new ParallelCommandGroup(
@@ -276,20 +277,20 @@ public class PedroBasketAutoFREAKEdition extends LinearOpMode {
                                         new PivotCommand(pivot, 90),
                                         new LiftLimitCommand(lift, true),
                                         new ParallelRaceGroup(
-                                                new LiftCommand(lift, 2280),
-                                                new WaitCommand(2000)
+                                                new LiftCommand(lift, 860),
+                                                new WaitCommand(800)
                                         )
                                 )
                         ),
-                        new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.antiSlamDunkTechnology, ConfigArmCommand.ClawState.closed, ConfigArmCommand.WristState.horizontal, 0.5),
-                        new ArmCommand(deposit, ArmCommand.DepositState.antiSlamDunkTechnology, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
-                        new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.floorIntake, ConfigArmCommand.ClawState.closed, ConfigArmCommand.WristState.horizontal, 0.2),
+                        new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.antiSlamDunkTechnology, ConfigArmCommand.ClawState.closed, ConfigArmCommand.WristState.horizontal, 0.3),
+                        new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.antiSlamDunkTechnology, ConfigArmCommand.ClawState.open, ConfigArmCommand.WristState.horizontal, 0.2),
+                        new ConfigArmCommand(deposit, ConfigArmCommand.DepositState.floorIntake, ConfigArmCommand.ClawState.open, ConfigArmCommand.WristState.horizontal, 0.2),
                         new ParallelCommandGroup(
                                 new SequentialCommandGroup(
                                         new LiftCommand(lift, 0),
                                         new ParallelCommandGroup(
-                                                new ArmCommand(deposit, ArmCommand.DepositState.basketDepo, ArmCommand.ClawState.closed, ArmCommand.WristState.horizontal),
-                                                new PivotCommand(pivot, 0)
+                                                new ArmCommand(deposit, ArmCommand.DepositState.floorIntake, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal),
+                                                new PivotCommand(pivot, 30)
                                         )
                                 ),
                                 new PedroCommand(follower, park)
@@ -302,6 +303,8 @@ public class PedroBasketAutoFREAKEdition extends LinearOpMode {
             follower.update();
             lift.update();
             pivot.update();
+            telemetry.addData("Liftpos", lift.ticks);
+            telemetry.update();
         }
 
 

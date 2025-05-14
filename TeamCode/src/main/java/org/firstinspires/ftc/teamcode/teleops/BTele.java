@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleops;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.teamcode.subsystems.MainArm;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
 @TeleOp(name = "Basket Tele")
+@Config
 public class BTele extends OpMode {
 
     public Drive drive; public MPPivot pivot; public Deposit deposit; public Lift lift;
@@ -24,7 +26,9 @@ public class BTele extends OpMode {
 
     public CommandScheduler actionQueue = CommandScheduler.getInstance();
 
-    boolean ip2 = false, isPr2 = false, irp = false, wasLastPick = false, ih = false, hang = false;
+    public static double usableF = 0.12;
+
+    boolean ip2 = false, isPr2 = false, irp = false;
 
     @Override
     public void init() {
@@ -42,46 +46,28 @@ public class BTele extends OpMode {
 
     @Override
     public void loop() {
-        drive.setFlags(gamepad1.left_bumper, gamepad1.right_bumper);
         drive.setXYZ(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
         deposit.process(gamepad2.dpad_up, gamepad2.dpad_down);
         lift.setManualInput(gamepad2.left_stick_x);
 
         if (!ip2 && gamepad2.x) {
-            pivot.setTargetAngle(92);
-        } else if (!ip2 && gamepad2.y) {
-            pivot.setTargetAngle(MainArm.hangle);
+            pivot.setTargetAngle(86);
         } else if (!ip2 && gamepad2.b) {
             pivot.setTargetAngle(0);
-        } else if (!ip2 && gamepad2.a) {
-            pivot.setTargetAngle(95);
-        } else if (!ip2 && gamepad2.left_stick_button) {
-            pivot.setTargetAngle(30);
         }
-        ip2 = gamepad2.b || gamepad2.x || gamepad2.y || gamepad2.a || gamepad2.left_stick_button;
-
-        pivot.setTargetAngle(Math.toDegrees(pivot.targetAngle) - gamepad2.right_stick_y);
-
-        actionQueue.run();
-
-        if (gamepad1.dpad_up && !wasLastPick) {
-            Deposit.armBack += 0.02;
-        } wasLastPick = gamepad1.dpad_up;
+        ip2 = gamepad2.b || gamepad2.x;
 
         drive.update();
         lift.update();
         pivot.update();
         deposit.update(gamepad2.left_bumper, gamepad2.right_bumper);
 
-        if (gamepad2.dpad_left && !isPr2 && pivot.angle <= Math.toRadians(45)) {
-            actionQueue.schedule(new PickInCommand(deposit, lift));
-        } else if (gamepad2.dpad_left && !isPr2 && pivot.targetAngle >= Math.toRadians(45)) {
+        if (gamepad2.dpad_left && !isPr2 && pivot.targetAngle >= Math.toRadians(45)) {
             actionQueue.schedule(new DropAndResetCommand(deposit, lift, pivot));
-            deposit.incr = 1;
-        } else if (gamepad2.a && !isPr2 && pivot.angle <= Math.toRadians(45)) {
-            actionQueue.schedule(new UpToCommand(lift, pivot));
         }
-        isPr2 = gamepad2.dpad_left || gamepad2.a;
+        isPr2 = gamepad2.dpad_left;
+
+        actionQueue.run();
 
         if (gamepad2.dpad_right && !irp) {
             if (lift.ticks > 250) {
@@ -91,12 +77,12 @@ public class BTele extends OpMode {
             }
         } irp = gamepad2.dpad_right;
 
-        lift.setLimit(pivot.angle > Math.toRadians(20));
-
-        telemetry.addData("Drive Power %", drive.getMultiplier() * 100);
-        telemetry.addData("slide reset switch", lift.readSensor());
-        telemetry.addData("Lift Ticks", lift.getTicks());
-        telemetry.addData("Lift Target", lift.target);
-        telemetry.update();
+        if (pivot.angle > Math.toRadians(35)) {
+            lift.setLimit(true);
+            Lift.f = usableF;
+        } else {
+            lift.setLimit(false);
+            Lift.f = 0;
+        }
     }
 }

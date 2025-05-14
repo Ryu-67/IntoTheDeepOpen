@@ -16,7 +16,7 @@ public class Drive {
 
     private boolean isPr = false, downFlag = false, upFlag = false;
 
-    private double mult = 0.8;
+    private double mult = 1.0;
 
     public static DcMotor.ZeroPowerBehavior zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE;
 
@@ -82,7 +82,7 @@ public class Drive {
         smp(x * mult, y * mult, z * mult);
     }
 
-    public void updateAuto(double heading, double x, double y, double z) {
+    public void updateAuto(double heading) {
         d = Math.max(abs(x) + abs(y) + abs(z), 1);
         applyGlobalPowers(heading, x, y, z, d);
     }
@@ -113,7 +113,7 @@ public class Drive {
     public void applyGlobalPowers(double heading, double x, double y, double z, double d) {
         double comp = Robot.universalVoltage/voltageSensor.getVoltage();
 
-        x = -x; y = y; z = -z;
+        x = -x;
 
         double xr = x * Math.cos(heading) - y * Math.sin(heading);
         double yr = x * Math.sin(heading) + y * Math.cos(heading);

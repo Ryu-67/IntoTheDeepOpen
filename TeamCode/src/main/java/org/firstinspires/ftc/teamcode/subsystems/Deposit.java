@@ -11,14 +11,14 @@ public class Deposit {
     private Servo lArm, pitch, wrist;
     private Claw claw;
 
-    public static double vert = 0.48, hori = 0.03, wrapped = 0.98, diag = 0.48/2;
+    public static double vert = 0.5, hori = 0.03, wrapped = 0.98, diag = 0.48/2;
 
     private boolean ispressed = false, spec = false;
 
-    public static double aPitchUp=0.47, aPitchDown = 0.84, aPitchBack = 0.12
+    public static double aPitchUp=0.455, aPitchDown = 0.84, aPitchBack = 0.07
             , aPitchSpec = 0.44, specSlamPitch = 0.6, slamOnPitch = 0.45;
 
-    public static double armDown = 0.4, armUp = 0.3, armBack = 0.24, armSpec = 0.48, specSlam = 0.4, slamPos = 0.15;
+    public static double armDown = 0.23, armUp = 0.27, armBack = 0.23, armSpec = 0.48, specSlam = 0.4, slamPos = 0.15;
 
     public Deposit(HardwareMap hardwareMap) {
         lArm = hardwareMap.servo.get("arm");
@@ -64,6 +64,9 @@ public class Deposit {
     Wstate wstate = Wstate.hori;
 
     public void update(boolean wristT, boolean clawT) {
+
+        claw.update(clawT);
+
         if (wristT && !ispressed) {
             if (wstate == Wstate.hori) {
                 wrist.setPosition(vert);
@@ -73,8 +76,6 @@ public class Deposit {
                 wstate = Wstate.hori;
             }
         } ispressed = wristT;
-
-        claw.update(clawT);
 
         if (incr != lincr) {
             if (incr == 1) {

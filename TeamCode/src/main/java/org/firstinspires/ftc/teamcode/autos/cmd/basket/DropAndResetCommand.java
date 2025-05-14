@@ -26,7 +26,7 @@ public class DropAndResetCommand extends SequentialCommandGroup {
                                         new PivotCommand(pivot, 0)
                                         ),
                                 new SequentialCommandGroup(
-                                        new WaitCommand(500),
+                                        new WaitCommand(200),
                                         new ArmCommand(deposit, ArmCommand.DepositState.basketDepo, ArmCommand.ClawState.open, ArmCommand.WristState.horizontal)
                                 )
                         )

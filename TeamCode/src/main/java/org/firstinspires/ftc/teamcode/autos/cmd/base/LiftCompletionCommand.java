@@ -6,15 +6,16 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 
 @Config
-public class LiftCommand extends CommandBase {
+public class LiftCompletionCommand extends CommandBase {
 
     private Lift lift;
     private double target = 0;
-    public static double tolerance = 30;
 
     boolean f = true;
 
-    public LiftCommand(Lift lift, double targetPosition) {
+    public static double thresh = 0.9;
+
+    public LiftCompletionCommand(Lift lift, double targetPosition) {
         this.lift = lift;
         this.target = targetPosition;
     }
@@ -37,7 +38,7 @@ public class LiftCommand extends CommandBase {
         if (f) {
             return false;
         } else {
-            return Math.abs(target-lift.ticks) < tolerance;
+            return (Math.abs((target)-lift.ticks) * thresh) < 10;
         }
     }
 

@@ -17,7 +17,7 @@ public class SolvePNP {
     public static double rp = Math.toRadians(-90); //robot xyz, robot pitch
     Pose2d fieldPos;
 
-    private double cxi = 1.0/94.0, cyi = 1.0/94.0;
+    private double cxi = 1.0/90.0, cyi = 1.0/94.0;
 
     public Translation2d getRobotCentricTranslation(double px, double py) {
         double gt = Math.atan((py-cy)/fl);

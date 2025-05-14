@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.ocv.SolvePNP;
-import org.firstinspires.ftc.teamcode.p2p.CamDrive;
+
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.localizers.PinpointLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.CameraSensor;
@@ -18,12 +18,13 @@ import org.firstinspires.ftc.teamcode.subsystems.MPPivot;
 @Config
 public class PNPTest extends LinearOpMode {
 
-    CameraSensor cameraSensor; SolvePNP solvePNP; PinpointLocalizer localizer;
+    CameraSensor cameraSensor; SolvePNP solvePNP;
 
     MPPivot pivot;
 
-    public static int exposure = 17;
+    public static int exposure = 30;
     public static double angle = 30;
+    private double lastExposure = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -31,11 +32,9 @@ public class PNPTest extends LinearOpMode {
 
         solvePNP = new SolvePNP();
 
-        localizer = new PinpointLocalizer(hardwareMap, new Pose(0,0,0));
-
         pivot = new MPPivot(hardwareMap);
 
-        while  (opModeInInit()) {
+        while(opModeInInit()) {
             pivot.setTargetAngle(angle);
             pivot.update();
         }
@@ -43,15 +42,20 @@ public class PNPTest extends LinearOpMode {
         cameraSensor = new CameraSensor(hardwareMap, "cam", telemetry, 0, false, true);
         cameraSensor.waitForSetExposure(3000, 10000, exposure);
 
+        lastExposure = exposure;
+
         cameraSensor.setEnabled(true);
 
         while (opModeIsActive()) {
             cameraSensor.periodic();
 
-            localizer.update();
-
             pivot.setTargetAngle(angle);
             pivot.update();
+
+            if  (lastExposure!= exposure) {
+                cameraSensor.waitForSetExposure(3000, 10000, exposure);
+                lastExposure = exposure;
+            }
 
             if (cameraSensor.detections()) {
                 Vector2d sample = cameraSensor.getSamplePos();
@@ -64,9 +68,6 @@ public class PNPTest extends LinearOpMode {
                 telemetry.addData("Sample Offset Y in inches", offset.getY());
                 telemetry.addData("Sample Rotation Angle", cameraSensor.readSampleAngle());
                 telemetry.addLine();
-                telemetry.addData("X", localizer.getPose().getX());
-                telemetry.addData("Y", localizer.getPose().getY());
-                telemetry.addData("T", localizer.getPose().getHeading());
             }
 
             telemetry.update();
