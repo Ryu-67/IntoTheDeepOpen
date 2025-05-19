@@ -104,13 +104,13 @@ public class ConfigArmCommand extends CommandBase {
                 wrist = 0.5;
                 break;
             case horizontal:
-                wrist = 0;
+                wrist = 0.055;
                 break;
             case diagonal:
                 wrist = 0.25;
                 break;
             case diagonal2:
-                wrist = 0.8;
+                wrist = 0.9;
                 break;
             case current:
                 break;

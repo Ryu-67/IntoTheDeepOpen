@@ -11,18 +11,22 @@ import org.firstinspires.ftc.teamcode.rr.PinpointDrive;
 public class RRFollowCommand extends CommandBase {
 
     private Action action;
+    private double timeout = 0.2;
 
     public RRFollowCommand(Action action, double timeout) {
         this.action = action;
-        MecanumDrive.PARAMS.timeout = timeout;
+        this.timeout = timeout;
     }
 
     public boolean flagged = false;
 
     @Override
     public boolean isFinished() {
+        if (!flagged) {
+            MecanumDrive.PARAMS.timeout = timeout;
+            flagged = true;
+        }
         return !action.run(new TelemetryPacket());
     }
-
 
 }

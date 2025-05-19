@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.autos.cmd.basket.PickInCommand;
 import org.firstinspires.ftc.teamcode.autos.cmd.basket.UpToCommand;
 import org.firstinspires.ftc.teamcode.subsystems.Deposit;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
+import org.firstinspires.ftc.teamcode.subsystems.Hang;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.MPPivot;
 import org.firstinspires.ftc.teamcode.subsystems.MainArm;
@@ -20,7 +21,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Robot;
 @Config
 public class BTele extends OpMode {
 
-    public Drive drive; public MPPivot pivot; public Deposit deposit; public Lift lift;
+    public Drive drive; public MPPivot pivot; public Deposit deposit; public Lift lift; public Hang hang;
 
     public Robot robot;
 
@@ -33,6 +34,7 @@ public class BTele extends OpMode {
     @Override
     public void init() {
         robot = new Robot(hardwareMap, true, false, true);
+        hang = new Hang(hardwareMap);
         drive = robot.drive;
         lift = robot.lift;
         deposit = robot.deposit;
@@ -51,16 +53,24 @@ public class BTele extends OpMode {
         lift.setManualInput(gamepad2.left_stick_x);
 
         if (!ip2 && gamepad2.x) {
-            pivot.setTargetAngle(86);
+            pivot.setTargetAngle(89.5);
         } else if (!ip2 && gamepad2.b) {
             pivot.setTargetAngle(0);
+        } else if (!ip2 && gamepad2.y) {
+            pivot.setTargetAngle(45);
         }
-        ip2 = gamepad2.b || gamepad2.x;
+        ip2 = gamepad2.b || gamepad2.x || gamepad2.y;
 
         drive.update();
         lift.update();
-        pivot.update();
+        if (gamepad2.left_trigger < 0.5) {
+            pivot.update();
+        } else {
+            pivot.setTargetAngle(0);
+            pivot.apply(-0.1);
+        }
         deposit.update(gamepad2.left_bumper, gamepad2.right_bumper);
+        hang.update(gamepad1.right_trigger > 0.4, gamepad1.left_trigger > 0.3);
 
         if (gamepad2.dpad_left && !isPr2 && pivot.targetAngle >= Math.toRadians(45)) {
             actionQueue.schedule(new DropAndResetCommand(deposit, lift, pivot));

@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.SortOrder;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 
@@ -38,16 +39,16 @@ public class CameraSensor extends SubsystemBase {
     public static Scalar minimumBlue = new Scalar(0, 0, 0);
     public static Scalar maximumBlue = new Scalar(0, 0, 0);
 
-    public static Scalar minimumYellow = new Scalar(5, 90, 90);
+    public static Scalar minimumYellow = new Scalar(12, 70, 70);
     public static Scalar maximumYellow = new Scalar(50, 180, 180);
 
     public static boolean useGlowUp = false;
 
     public static int exposureMillis = 30;
     public static int minContourArea = 880, maxCountourArea = 100000;
-    public static double alpha = 0.2; //gain scalar
+    public static double alpha = 0.5; //gain scalar
     public static double beta = 0; //brightness offset
-    public static int contrast = 100; //default is 40
+    public static int contrast = 30; //default is 40
 
 
     SampleLocatorPipeline colorLocator;
@@ -60,6 +61,7 @@ public class CameraSensor extends SubsystemBase {
     VisionPortal visionPortal;
 
     ColorBlobLocatorProcessor.Blob firstDetection;
+    WebcamName camera;
 
 
     public CameraSensor(HardwareMap hMap, String name, Telemetry telemetry, int viewportid, boolean red, boolean drawContours){
@@ -101,24 +103,34 @@ public class CameraSensor extends SubsystemBase {
                     .setAutoStartStreamOnBuild(true)
 //                    .setLiveViewContainerId(viewportid)
                     .build();
-        } else {
-            visionPortal = new VisionPortal.Builder()
-                    .addProcessors(colorLocator)
-                    .setCameraResolution(new Size(640, 480))
-                    .setCamera( hMap.get(WebcamName.class, name))
-                    .enableLiveView(true)
-                    .setAutoStartStreamOnBuild(true)
-//                    .setLiveViewContainerId(viewportid)
-                    .build();
         }
 
-        setEnabled(true);
-        waitForSetExposure(1000, 1000);
+        camera = hMap.get(WebcamName.class, name);
+
+
 
         this.telemetry = telemetry;
     }
 
     public boolean sensed = false;
+
+    public void startStreaming() {
+        visionPortal = new VisionPortal.Builder()
+                .addProcessors(colorLocator)
+                .setCameraResolution(new Size(640, 480))
+                .setCamera(camera)
+                .enableLiveView(true)
+                .setAutoStartStreamOnBuild(true)
+//                    .setLiveViewContainerId(viewportid)
+                .build();
+
+        waitForSetExposure(1000, 1000);
+        visionPortal.setProcessorEnabled(colorLocator, false);
+    }
+
+    public void enableProc () {
+        visionPortal.setProcessorEnabled(colorLocator, true);
+    }
 
     @Override
     public void periodic() {

@@ -9,7 +9,7 @@ public class Claw {
 
     private Servo claw;
     private boolean ispressed = false;
-    public static double closed = 0, open = 0.3;
+    public static double closed = 0, open = 0.315;
 
     public Claw(HardwareMap hardwareMap) {
         claw = hardwareMap.servo.get("claw");

@@ -22,8 +22,8 @@ public class PNPTest extends LinearOpMode {
 
     MPPivot pivot;
 
-    public static int exposure = 30;
-    public static double angle = 30;
+    public static int exposure = 15;
+    public static double angle = 10;
     private double lastExposure = 0;
 
     @Override

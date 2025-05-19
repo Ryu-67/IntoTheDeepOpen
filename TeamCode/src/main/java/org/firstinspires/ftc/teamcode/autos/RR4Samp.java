@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
@@ -16,15 +15,13 @@ import org.firstinspires.ftc.teamcode.autos.cmd.base.LiftCommand;
 import org.firstinspires.ftc.teamcode.autos.cmd.base.LiftLimitCommand;
 import org.firstinspires.ftc.teamcode.autos.cmd.base.PivotCommand;
 import org.firstinspires.ftc.teamcode.autos.cmd.base.RRFollowCommand;
-import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.rr.MecanumDrive;
 import org.firstinspires.ftc.teamcode.rr.PinpointDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Deposit;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.MPPivot;
 
-@Autonomous
-public class RRBasket extends LinearOpMode {
+@Autonomous(name= "Roadrunner 4 Basket")
+public class RR4Samp extends LinearOpMode {
 
     Lift lift; MPPivot pivot; Deposit deposit; PinpointDrive pinpointDrive;
 
